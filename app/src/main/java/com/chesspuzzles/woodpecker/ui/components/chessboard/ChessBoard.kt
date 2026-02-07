@@ -5,7 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -71,14 +71,14 @@ fun ChessBoard(
     val boardShape = RoundedCornerShape(8.dp)
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         shape = boardShape,
         shadowElevation = 4.dp,
         color = MaterialTheme.colorScheme.surfaceContainerHighest
     ) {
         Canvas(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .aspectRatio(1f)
                 .clip(boardShape)
                 .then(

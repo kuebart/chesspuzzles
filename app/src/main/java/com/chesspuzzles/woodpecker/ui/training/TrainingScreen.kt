@@ -215,14 +215,14 @@ fun TrainingScreen(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Chess Board - takes remaining vertical space, stays square
+                // Chess Board - full width, no horizontal padding
                 ChessBoard(
                     boardState = viewModel.boardState,
                     enabled = uiState.boardEnabled,
                     onMoveAttempt = { from, to ->
                         viewModel.onUserMove(from, to)
                     },
-                    modifier = Modifier.weight(1f).fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

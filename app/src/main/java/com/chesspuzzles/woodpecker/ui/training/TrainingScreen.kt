@@ -118,12 +118,12 @@ fun TrainingScreen(
                         onClick = {
                             viewModel.onNavigateToPuzzle(uiState.displayedPuzzleIndex - 1)
                         },
-                        enabled = uiState.displayedPuzzleIndex > 0,
-                        modifier = Modifier.size(32.dp)
+                        enabled = uiState.displayedPuzzleIndex > 0
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Previous puzzle"
+                            contentDescription = "Previous puzzle",
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                     PuzzleProgressBar(
@@ -141,12 +141,12 @@ fun TrainingScreen(
                                 viewModel.onNavigateToPuzzle(uiState.displayedPuzzleIndex + 1)
                             }
                         },
-                        enabled = uiState.displayedPuzzleIndex < uiState.currentPuzzleIndex,
-                        modifier = Modifier.size(32.dp)
+                        enabled = uiState.displayedPuzzleIndex < uiState.currentPuzzleIndex
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Next puzzle"
+                            contentDescription = "Next puzzle",
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                 }
@@ -233,8 +233,8 @@ fun TrainingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Move History Navigation (always visible when there are moves)
-                if (uiState.moveHistorySize > 0) {
+                // Move History Navigation (visible when user has made moves)
+                if (uiState.moveHistorySize > 1) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
@@ -251,7 +251,7 @@ fun TrainingScreen(
                             )
                         }
                         Text(
-                            text = "Move ${uiState.moveHistoryIndex} / ${uiState.moveHistorySize}",
+                            text = "Move ${uiState.moveHistoryIndex - 1} / ${uiState.moveHistorySize - 1}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         IconButton(

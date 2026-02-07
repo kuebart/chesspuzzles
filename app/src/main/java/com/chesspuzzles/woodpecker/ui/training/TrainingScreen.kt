@@ -242,11 +242,12 @@ fun TrainingScreen(
                     ) {
                         IconButton(
                             onClick = viewModel::onMoveHistoryBack,
-                            enabled = uiState.moveHistoryIndex > 0
+                            enabled = uiState.moveHistoryIndex > 1
                         ) {
                             Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Previous move"
+                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Previous move",
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                         Text(
@@ -258,8 +259,9 @@ fun TrainingScreen(
                             enabled = uiState.moveHistoryIndex < uiState.moveHistorySize
                         ) {
                             Icon(
-                                Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Next move"
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = "Next move",
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                     }

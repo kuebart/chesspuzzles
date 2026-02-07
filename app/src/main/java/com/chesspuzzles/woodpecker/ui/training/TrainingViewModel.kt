@@ -273,7 +273,7 @@ class TrainingViewModel @Inject constructor(
 
     fun onMoveHistoryBack() {
         val state = _uiState.value
-        if (state.moveHistoryIndex <= 0) return
+        if (state.moveHistoryIndex <= 1) return
 
         val newIndex = state.moveHistoryIndex - 1
         reconstructBoard(newIndex)

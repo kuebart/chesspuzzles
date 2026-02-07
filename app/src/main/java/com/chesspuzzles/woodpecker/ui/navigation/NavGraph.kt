@@ -1,0 +1,101 @@
+package com.chesspuzzles.woodpecker.ui.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.chesspuzzles.woodpecker.ui.create.CreateSuiteScreen
+
+import com.chesspuzzles.woodpecker.ui.detail.SuiteDetailScreen
+import com.chesspuzzles.woodpecker.ui.home.HomeScreen
+import com.chesspuzzles.woodpecker.ui.summary.CycleSummaryScreen
+import com.chesspuzzles.woodpecker.ui.training.TrainingScreen
+
+object Routes {
+    const val HOME = "home"
+    const val CREATE_SUITE = "create"
+
+    const val SUITE_DETAIL = "suite/{suiteId}"
+    const val TRAINING = "training/{suiteId}/{cycleId}"
+    const val CYCLE_SUMMARY = "summary/{cycleId}"
+
+    fun suiteDetail(suiteId: Long) = "suite/$suiteId"
+    fun training(suiteId: Long, cycleId: Long) = "training/$suiteId/$cycleId"
+    fun cycleSummary(cycleId: Long) = "summary/$cycleId"
+}
+
+@Composable
+fun NavGraph(navController: NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = Routes.HOME
+    ) {
+        composable(Routes.HOME) {
+            HomeScreen(
+                onCreateSuite = { navController.navigate(Routes.CREATE_SUITE) },
+                onSuiteClick = { suiteId -> navController.navigate(Routes.suiteDetail(suiteId)) },
+                onStartTraining = { suiteId, cycleId ->
+                    navController.navigate(Routes.training(suiteId, cycleId))
+                }
+            )
+        }
+
+        composable(Routes.CREATE_SUITE) {
+            CreateSuiteScreen(
+                onBack = { navController.popBackStack() },
+                onSuiteCreated = { suiteId ->
+                    navController.popBackStack()
+                    navController.navigate(Routes.suiteDetail(suiteId))
+                },
+
+            )
+        }
+
+
+        composable(
+            route = Routes.SUITE_DETAIL,
+            arguments = listOf(navArgument("suiteId") { type = NavType.LongType })
+        ) {
+            SuiteDetailScreen(
+                onBack = { navController.popBackStack() },
+                onStartTraining = { suiteId, cycleId ->
+                    navController.navigate(Routes.training(suiteId, cycleId))
+                },
+                onCycleClick = { cycleId ->
+                    navController.navigate(Routes.cycleSummary(cycleId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.TRAINING,
+            arguments = listOf(
+                navArgument("suiteId") { type = NavType.LongType },
+                navArgument("cycleId") { type = NavType.LongType }
+            )
+        ) {
+            TrainingScreen(
+                onBack = { navController.popBackStack() },
+                onCycleComplete = { cycleId ->
+                    navController.popBackStack()
+                    navController.navigate(Routes.cycleSummary(cycleId))
+                }
+            )
+        }
+
+        composable(
+            route = Routes.CYCLE_SUMMARY,
+            arguments = listOf(navArgument("cycleId") { type = NavType.LongType })
+        ) {
+            CycleSummaryScreen(
+                onBack = { navController.popBackStack() },
+                onStartNextCycle = { suiteId, cycleId ->
+                    navController.popBackStack()
+                    navController.navigate(Routes.training(suiteId, cycleId))
+                }
+            )
+        }
+    }
+}

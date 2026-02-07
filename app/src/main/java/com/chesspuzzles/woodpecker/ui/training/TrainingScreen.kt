@@ -245,7 +245,7 @@ fun TrainingScreen(
                             )
                         }
                         Text(
-                            text = "${uiState.moveHistoryIndex - 1}",
+                            text = "${uiState.moveHistoryIndex / 2} / ${uiState.moveHistorySize / 2}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         IconButton(

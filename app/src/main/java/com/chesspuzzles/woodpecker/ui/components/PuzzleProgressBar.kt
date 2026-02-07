@@ -36,8 +36,8 @@ fun PuzzleProgressBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp)
-                .height(10.dp)
-                .clip(RoundedCornerShape(5.dp)),
+                .height(18.dp)
+                .clip(RoundedCornerShape(9.dp)),
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     }

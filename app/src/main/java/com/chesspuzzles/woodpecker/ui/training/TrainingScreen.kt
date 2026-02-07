@@ -1,11 +1,5 @@
 package com.chesspuzzles.woodpecker.ui.training
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -96,8 +88,7 @@ fun TrainingScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(padding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -283,91 +274,53 @@ fun TrainingScreen(
                 // Feedback area
                 when (uiState.result) {
                     PuzzleResult.CORRECT -> {
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + scaleIn(initialScale = 0.8f)
+                        Row(
+                            modifier = Modifier.fillMaxWidth().then(hp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .then(hp)
-                                    .border(
-                                        width = 1.dp,
-                                        color = CorrectGreen.copy(alpha = 0.5f),
-                                        shape = MaterialTheme.shapes.medium
-                                    )
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = CorrectGreen,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                    Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                                    Text(
-                                        text = "Correct!",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = CorrectGreen
-                                    )
-                                }
-                            }
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = CorrectGreen,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Text(
+                                text = "Correct!",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = CorrectGreen
+                            )
                         }
                     }
                     PuzzleResult.WRONG -> {
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 })
+                        Row(
+                            modifier = Modifier.fillMaxWidth().then(hp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.then(hp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .border(
-                                            width = 1.dp,
-                                            color = WrongRed.copy(alpha = 0.5f),
-                                            shape = MaterialTheme.shapes.medium
-                                        )
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = null,
-                                            tint = WrongRed,
-                                            modifier = Modifier.size(28.dp)
-                                        )
-                                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                                        Text(
-                                            text = "Incorrect",
-                                            style = MaterialTheme.typography.titleLarge,
-                                            color = WrongRed
-                                        )
-                                    }
-                                }
-                                if (uiState.showContinueButton) {
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    Button(onClick = viewModel::onContinueAfterWrong) {
-                                        Text("Continue")
-                                    }
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = null,
+                                tint = WrongRed,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Text(
+                                text = "Incorrect",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = WrongRed
+                            )
+                            if (uiState.showContinueButton) {
+                                Spacer(modifier = Modifier.weight(1f))
+                                Button(onClick = viewModel::onContinueAfterWrong) {
+                                    Text("Continue")
                                 }
                             }
                         }
                     }
                     PuzzleResult.NONE -> {
-                        Spacer(modifier = Modifier.height(56.dp))
+                        Spacer(modifier = Modifier.height(48.dp))
                     }
                 }
             }

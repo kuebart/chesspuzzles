@@ -245,17 +245,16 @@ class TrainingViewModel @Inject constructor(
                 timeMs = timeMs
             )
 
+            pauseTimer()
+
             _uiState.update {
                 it.copy(
                     boardEnabled = false,
                     result = PuzzleResult.CORRECT,
+                    showContinueButton = true,
                     correctCount = it.correctCount + 1
                 )
             }
-
-            // Auto-advance after brief delay
-            delay(800)
-            advanceToNext()
         }
     }
 
@@ -408,7 +407,7 @@ class TrainingViewModel @Inject constructor(
         }
     }
 
-    fun onContinueAfterWrong() {
+    fun onContinue() {
         viewModelScope.launch {
             advanceToNext()
         }

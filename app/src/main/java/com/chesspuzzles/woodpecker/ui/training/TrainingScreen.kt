@@ -276,8 +276,7 @@ fun TrainingScreen(
                     PuzzleResult.CORRECT -> {
                         Row(
                             modifier = Modifier.fillMaxWidth().then(hp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
@@ -291,13 +290,16 @@ fun TrainingScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = CorrectGreen
                             )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Button(onClick = viewModel::onContinue) {
+                                Text("Continue")
+                            }
                         }
                     }
                     PuzzleResult.WRONG -> {
                         Row(
                             modifier = Modifier.fillMaxWidth().then(hp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -313,7 +315,7 @@ fun TrainingScreen(
                             )
                             if (uiState.showContinueButton) {
                                 Spacer(modifier = Modifier.weight(1f))
-                                Button(onClick = viewModel::onContinueAfterWrong) {
+                                Button(onClick = viewModel::onContinue) {
                                     Text("Continue")
                                 }
                             }

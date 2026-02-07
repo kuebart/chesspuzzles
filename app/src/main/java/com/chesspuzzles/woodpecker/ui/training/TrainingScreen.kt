@@ -99,58 +99,56 @@ fun TrainingScreen(
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Progress + Puzzle Navigation + Timer Row
+                // Timer
+                TimerDisplay(
+                    startTimeMs = uiState.timerStartMs,
+                    running = uiState.timerRunning,
+                    offsetMs = uiState.timerOffsetMs
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Puzzle Navigation (centered)
                 Row(
                     modifier = Modifier.fillMaxWidth().then(hp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
+                    IconButton(
+                        onClick = {
+                            viewModel.onNavigateToPuzzle(uiState.displayedPuzzleIndex - 1)
+                        },
+                        enabled = uiState.displayedPuzzleIndex > 0,
+                        modifier = Modifier.size(32.dp)
                     ) {
-                        IconButton(
-                            onClick = {
-                                viewModel.onNavigateToPuzzle(uiState.displayedPuzzleIndex - 1)
-                            },
-                            enabled = uiState.displayedPuzzleIndex > 0,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                contentDescription = "Previous puzzle"
-                            )
-                        }
-                        PuzzleProgressBar(
-                            current = uiState.displayedPuzzleIndex + 1,
-                            total = uiState.totalPuzzles,
-                            modifier = Modifier.weight(1f)
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = "Previous puzzle"
                         )
-                        IconButton(
-                            onClick = {
-                                if (uiState.isReviewingPastPuzzle &&
-                                    uiState.displayedPuzzleIndex + 1 == uiState.currentPuzzleIndex
-                                ) {
-                                    viewModel.onReturnToLivePuzzle()
-                                } else {
-                                    viewModel.onNavigateToPuzzle(uiState.displayedPuzzleIndex + 1)
-                                }
-                            },
-                            enabled = uiState.displayedPuzzleIndex < uiState.currentPuzzleIndex,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = "Next puzzle"
-                            )
-                        }
                     }
-                    TimerDisplay(
-                        startTimeMs = uiState.timerStartMs,
-                        running = uiState.timerRunning,
-                        modifier = Modifier.padding(start = 16.dp),
-                        offsetMs = uiState.timerOffsetMs
+                    PuzzleProgressBar(
+                        current = uiState.displayedPuzzleIndex + 1,
+                        total = uiState.totalPuzzles,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
+                    IconButton(
+                        onClick = {
+                            if (uiState.isReviewingPastPuzzle &&
+                                uiState.displayedPuzzleIndex + 1 == uiState.currentPuzzleIndex
+                            ) {
+                                viewModel.onReturnToLivePuzzle()
+                            } else {
+                                viewModel.onNavigateToPuzzle(uiState.displayedPuzzleIndex + 1)
+                            }
+                        },
+                        enabled = uiState.displayedPuzzleIndex < uiState.currentPuzzleIndex,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Next puzzle"
+                        )
+                    }
                 }
 
                 // Correct / Wrong counter

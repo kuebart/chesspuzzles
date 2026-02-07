@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,9 +29,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,12 +43,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
+import com.chesspuzzles.woodpecker.ui.theme.ChartGold
+import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
 import com.chesspuzzles.woodpecker.util.TimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -95,7 +99,11 @@ fun SuiteDetailScreen(
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete Suite")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { padding ->
@@ -123,9 +131,10 @@ fun SuiteDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Suite Info
-                    Card(
+                    Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -242,11 +251,12 @@ private fun CycleRow(
     stats: CycleStats?,
     onClick: () -> Unit
 ) {
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         Row(
             modifier = Modifier
@@ -304,8 +314,6 @@ private fun ProgressChart(
     cycleStats: List<Pair<Cycle, CycleStats?>>,
     modifier: Modifier = Modifier
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-
     Canvas(modifier = modifier) {
         val completedStats = cycleStats.mapNotNull { it.second }
         if (completedStats.size < 2) return@Canvas
@@ -314,7 +322,8 @@ private fun ProgressChart(
         val minTime = completedStats.minOf { it.totalTimeMs }.toFloat()
         val range = (maxTime - minTime).coerceAtLeast(1f)
 
-        val path = Path()
+        val linePath = Path()
+        val fillPath = Path()
         val stepX = size.width / (completedStats.size - 1).coerceAtLeast(1)
 
         completedStats.forEachIndexed { index, stats ->
@@ -322,22 +331,37 @@ private fun ProgressChart(
             val y = size.height - ((stats.totalTimeMs - minTime) / range) * size.height * 0.8f - size.height * 0.1f
 
             if (index == 0) {
-                path.moveTo(x, y)
+                linePath.moveTo(x, y)
+                fillPath.moveTo(x, size.height)
+                fillPath.lineTo(x, y)
             } else {
-                path.lineTo(x, y)
+                linePath.lineTo(x, y)
+                fillPath.lineTo(x, y)
             }
 
             // Draw point
             drawCircle(
-                color = primaryColor,
+                color = ChartGold,
                 radius = 6f,
                 center = Offset(x, y)
             )
         }
 
+        // Close fill path
+        fillPath.lineTo((completedStats.size - 1) * stepX, size.height)
+        fillPath.close()
+
+        // Draw fill
         drawPath(
-            path = path,
-            color = primaryColor,
+            path = fillPath,
+            color = ChartGoldFill,
+            style = Fill
+        )
+
+        // Draw line
+        drawPath(
+            path = linePath,
+            color = ChartGold,
             style = Stroke(width = 3f)
         )
     }

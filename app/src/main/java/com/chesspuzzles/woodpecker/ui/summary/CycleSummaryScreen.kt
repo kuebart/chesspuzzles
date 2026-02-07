@@ -9,25 +9,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -35,6 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.ui.theme.ChartBarDefault
+import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
 import com.chesspuzzles.woodpecker.ui.theme.WrongRed
 import com.chesspuzzles.woodpecker.util.TimeFormatter
@@ -56,7 +61,11 @@ fun CycleSummaryScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { padding ->
@@ -99,7 +108,7 @@ fun CycleSummaryScreen(
                             title = "Total Time",
                             value = TimeFormatter.formatMs(stats.totalTimeMs),
                             delta = stats.timeDeltaMs?.let { TimeFormatter.formatDelta(it) },
-                            deltaPositive = stats.timeDeltaMs?.let { it < 0 }, // Less time is better
+                            deltaPositive = stats.timeDeltaMs?.let { it < 0 },
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
@@ -154,6 +163,13 @@ fun CycleSummaryScreen(
                     onClick = { viewModel.startNextCycle(onStartNextCycle) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .padding(end = 4.dp)
+                    )
                     Text("Start Next Cycle")
                 }
 
@@ -171,9 +187,10 @@ private fun StatCard(
     deltaPositive: Boolean? = null,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Surface(
         modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -191,15 +208,27 @@ private fun StatCard(
                 fontWeight = FontWeight.Bold
             )
             if (delta != null) {
-                Text(
-                    text = delta,
-                    style = MaterialTheme.typography.bodySmall,
+                Surface(
+                    shape = MaterialTheme.shapes.small,
                     color = when (deltaPositive) {
-                        true -> CorrectGreen
-                        false -> WrongRed
-                        null -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
+                        true -> CorrectGreen.copy(alpha = 0.15f)
+                        false -> WrongRed.copy(alpha = 0.15f)
+                        null -> Color.Transparent
+                    },
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Text(
+                        text = delta,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = when (deltaPositive) {
+                            true -> CorrectGreen
+                            false -> WrongRed
+                            null -> MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
             }
         }
     }
@@ -210,24 +239,29 @@ private fun CycleBarChart(
     cycleStats: List<Pair<com.chesspuzzles.woodpecker.domain.model.Cycle, com.chesspuzzles.woodpecker.domain.model.CycleStats>>,
     modifier: Modifier = Modifier
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-    val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
+    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
 
     Canvas(modifier = modifier) {
         if (cycleStats.isEmpty()) return@Canvas
 
         val maxTime = cycleStats.maxOf { it.second.totalTimeMs }.toFloat()
+        val bottomPadding = 24f
+        val chartHeight = size.height - bottomPadding
         val barWidth = size.width / (cycleStats.size * 2f)
         val spacing = barWidth
+        val cornerRadius = CornerRadius(barWidth * 0.2f, barWidth * 0.2f)
 
         cycleStats.forEachIndexed { index, (_, stats) ->
-            val barHeight = (stats.totalTimeMs / maxTime) * (size.height * 0.85f)
+            val barHeight = (stats.totalTimeMs / maxTime) * (chartHeight * 0.85f)
             val x = index * (barWidth + spacing) + spacing / 2
+            val isLast = index == cycleStats.lastIndex
+            val barColor = if (isLast) ChartGold else ChartBarDefault
 
-            drawRect(
-                color = primaryColor,
-                topLeft = Offset(x, size.height - barHeight),
-                size = Size(barWidth, barHeight)
+            drawRoundRect(
+                color = barColor,
+                topLeft = Offset(x, chartHeight - barHeight),
+                size = Size(barWidth, barHeight),
+                cornerRadius = cornerRadius
             )
         }
     }

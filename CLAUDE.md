@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow
+
+**After every completed change: always commit and push.**
+```bash
+git add <changed files> && git commit -m "description" && git push
+```
+Do not wait for the user to ask — commit + push is the default after any working change.
+
 ## Build & Deploy
 
 ```bash
@@ -22,7 +30,7 @@ Android SDK is at `C:\android` (non-standard path, set in `local.properties`). N
 
 ## Architecture
 
-MVVM Android app using Jetpack Compose, Hilt DI, Room database. Single activity (`MainActivity`) with Compose Navigation.
+MVVM Android app using Jetpack Compose, Hilt DI, Room database. Single activity (`MainActivity`) with Compose Navigation. UI language is German.
 
 **Data flow:** `Room DB` → `Repository` → `ViewModel (StateFlow)` → `Composable Screen`
 
@@ -32,17 +40,26 @@ MVVM Android app using Jetpack Compose, Hilt DI, Room database. Single activity 
 - **data/local/dao/** — `PuzzleDao`, `SuiteDao`, `CycleDao`
 - **data/repository/** — `PuzzleRepository`, `SuiteRepository` (entity ↔ domain mapping happens here)
 - **data/csv/CsvImporter** — Imports `assets/puzzles.csv` (Lichess format) on first launch; skips if DB already has data. To re-import, uninstall the app.
-- **domain/model/** — Domain models (`Puzzle`, `Suite`, `Cycle`, `CycleStats`, `PuzzleTheme` enum with 47 Lichess themes)
+- **domain/model/** — Domain models (`Puzzle`, `Suite`, `Cycle`, `CycleStats`, `PuzzleTheme` enum with 47 Lichess themes, German display names)
 - **di/AppModule** — Hilt singleton module providing Room DB and DAOs
 - **ui/navigation/NavGraph** — Routes: `home`, `create`, `suite/{suiteId}`, `training/{suiteId}/{cycleId}`, `summary/{cycleId}`
+
+### Theme & Design (`ui/theme/`)
+
+Premium dark chess design with Gold/Amber accent. Dynamic Color is disabled for brand consistency.
+
+- **Color.kt** — Gold/Amber primary, warm dark surfaces, feedback colors (CorrectGreen, WrongRed), chart colors, board colors
+- **Shape.kt** — Unified RoundedCornerShapes (8dp small, 12dp medium, 16dp large)
+- **Type.kt** — Negative letter-spacing on headlines, all Material 3 text styles defined
+- **Theme.kt** — Full dark/light ColorSchemes, status bar color synced to surface, no dynamic color
 
 ### Chess Board Component (`ui/components/chessboard/`)
 
 Custom Canvas-based chess board — the most complex UI component:
 
 - **BoardState** — Compose state holder wrapping `chesslib.Board`. Manages position, selection, legal moves, highlights. Exposes `boardVersion` (Int) that increments on every board change to trigger recomposition. Key methods: `loadFen()`, `makeMoveUci()`, `selectSquare()`, `tryMove()`.
-- **BoardRenderer** — Pure drawing logic (`DrawScope` extension). Draws squares, highlights (selection, last move, legal moves, check). Handles board flipping via `flipped` flag.
-- **ChessBoard** — Main `@Composable`. Combines `BoardRenderer` drawing + piece rendering + `pointerInput` for tap and drag gestures. Important: reads `boardState.legalMovesFromSelected` directly in tap handler (not captured variable) to avoid stale closure bugs.
+- **BoardRenderer** — Pure drawing logic (`DrawScope` extension). Draws squares, highlights (selection, last move in amber, legal moves, check). Coordinates (a-h, 1-8) drawn outside the board on all four sides. Takes `margin` parameter for coordinate area. Square coloring: `(file + rank) % 2 != 0` = light (a1 is dark).
+- **ChessBoard** — Main `@Composable`. Board wrapped in `Surface` with rounded corners (8dp) + shadow. Canvas uses `margin` (2.5% of width) for coordinates, `squareSize = (width - 2*margin) / 8`. In TrainingScreen the board gets full screen width (no horizontal padding). Uses `rememberTextMeasurer()` for coordinate labels.
 - **PieceRenderer** — Maps `chesslib.Piece` enum to drawable resource IDs (`piece_wp.xml` through `piece_bk.xml`)
 - **DragState** — Data class tracking drag-in-progress (piece, from square, current offset)
 

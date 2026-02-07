@@ -1,6 +1,11 @@
 package com.chesspuzzles.woodpecker.ui.training
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +21,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,9 +30,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -63,7 +72,11 @@ fun TrainingScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { padding ->
@@ -77,18 +90,18 @@ fun TrainingScreen(
                 CircularProgressIndicator()
             }
         } else {
+            val hp = Modifier.padding(horizontal = 16.dp)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp),
+                    .padding(padding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Progress + Puzzle Navigation + Timer Row
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().then(hp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -144,7 +157,7 @@ fun TrainingScreen(
                 if (uiState.correctCount > 0 || uiState.wrongCount > 0) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().then(hp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -170,22 +183,34 @@ fun TrainingScreen(
 
                 // Side to play / Review indicator + Puzzle ID
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().then(hp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (uiState.isReviewingPastPuzzle) {
-                        Text(
-                            text = "Reviewing",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Text(
+                                text = "Reviewing",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            )
+                        }
                     } else {
-                        Text(
-                            text = "${uiState.sideToPlay} to play",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ) {
+                            Text(
+                                text = "${uiState.sideToPlay} to play",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                            )
+                        }
                     }
                     if (uiState.currentPuzzleId.isNotEmpty()) {
                         Text(
@@ -196,9 +221,9 @@ fun TrainingScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Chess Board
+                // Chess Board - full width, no horizontal padding
                 ChessBoard(
                     boardState = viewModel.boardState,
                     enabled = uiState.boardEnabled,
@@ -215,7 +240,7 @@ fun TrainingScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().then(hp)
                     ) {
                         IconButton(
                             onClick = viewModel::onMoveHistoryBack,
@@ -250,58 +275,95 @@ fun TrainingScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Feedback area
                 when (uiState.result) {
                     PuzzleResult.CORRECT -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    CorrectGreen.copy(alpha = 0.2f),
-                                    shape = MaterialTheme.shapes.medium
-                                )
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Correct!",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = CorrectGreen
-                            )
-                        }
-                    }
-                    PuzzleResult.WRONG -> {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + scaleIn(initialScale = 0.8f)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(
-                                        WrongRed.copy(alpha = 0.2f),
+                                    .then(hp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = CorrectGreen.copy(alpha = 0.5f),
                                         shape = MaterialTheme.shapes.medium
                                     )
                                     .padding(16.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = "Incorrect",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = WrongRed
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = CorrectGreen,
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                    Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                                    Text(
+                                        text = "Correct!",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = CorrectGreen
+                                    )
+                                }
                             }
-                            if (uiState.showContinueButton) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(onClick = viewModel::onContinueAfterWrong) {
-                                    Text("Continue")
+                        }
+                    }
+                    PuzzleResult.WRONG -> {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + slideInVertically(initialOffsetY = { it / 4 })
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.then(hp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .border(
+                                            width = 1.dp,
+                                            color = WrongRed.copy(alpha = 0.5f),
+                                            shape = MaterialTheme.shapes.medium
+                                        )
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = null,
+                                            tint = WrongRed,
+                                            modifier = Modifier.size(28.dp)
+                                        )
+                                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                                        Text(
+                                            text = "Incorrect",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = WrongRed
+                                        )
+                                    }
+                                }
+                                if (uiState.showContinueButton) {
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Button(onClick = viewModel::onContinueAfterWrong) {
+                                        Text("Continue")
+                                    }
                                 }
                             }
                         }
                     }
                     PuzzleResult.NONE -> {
-                        // Empty space placeholder
                         Spacer(modifier = Modifier.height(56.dp))
                     }
                 }

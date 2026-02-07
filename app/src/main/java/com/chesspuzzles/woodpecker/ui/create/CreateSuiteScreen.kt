@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,8 +24,8 @@ import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -54,7 +53,11 @@ fun CreateSuiteScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
             )
         }
     ) { padding ->
@@ -68,11 +71,21 @@ fun CreateSuiteScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
+            val autoName = buildString {
+                if (uiState.selectedThemes.isNotEmpty()) {
+                    val names = uiState.selectedThemes.take(3).map { it.displayName }
+                    append(names.joinToString(", "))
+                    if (uiState.selectedThemes.size > 3) append(" +${uiState.selectedThemes.size - 3}")
+                    append(" ")
+                }
+                append("${uiState.ratingMin}-${uiState.ratingMax}")
+            }
 
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = viewModel::setName,
                 label = { Text("Suite Name") },
+                placeholder = { Text(autoName, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -83,33 +96,77 @@ fun CreateSuiteScreen(
                 style = MaterialTheme.typography.titleMedium
             )
 
+            val tacticalThemes = listOf(
+                PuzzleTheme.FORK, PuzzleTheme.PIN, PuzzleTheme.SKEWER,
+                PuzzleTheme.DISCOVERED_ATTACK, PuzzleTheme.DOUBLE_CHECK,
+                PuzzleTheme.SACRIFICE, PuzzleTheme.DEFLECTION, PuzzleTheme.DECOY,
+                PuzzleTheme.INTERFERENCE, PuzzleTheme.OVERLOADING,
+                PuzzleTheme.TRAPPED_PIECE, PuzzleTheme.HANGING_PIECE,
+                PuzzleTheme.ZUGZWANG, PuzzleTheme.QUIET_MOVE,
+                PuzzleTheme.X_RAY_ATTACK, PuzzleTheme.CLEARANCE,
+                PuzzleTheme.INTERMEZZO
+            )
+
+            val mateThemes = listOf(
+                PuzzleTheme.MATE_IN_1, PuzzleTheme.MATE_IN_2, PuzzleTheme.MATE_IN_3,
+                PuzzleTheme.BACK_RANK_MATE, PuzzleTheme.SMOTHERED_MATE,
+                PuzzleTheme.ARABIAN_MATE, PuzzleTheme.HOOK_MATE
+            )
+
+            val phaseThemes = listOf(
+                PuzzleTheme.OPENING, PuzzleTheme.MIDDLEGAME, PuzzleTheme.ENDGAME,
+                PuzzleTheme.PAWN_ENDGAME, PuzzleTheme.ROOK_ENDGAME
+            )
+
+            // Tactical Motifs
+            Text(
+                text = "TAKTISCHE MOTIVE",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                val tacticalThemes = listOf(
-                    PuzzleTheme.FORK, PuzzleTheme.PIN, PuzzleTheme.SKEWER,
-                    PuzzleTheme.DISCOVERED_ATTACK, PuzzleTheme.DOUBLE_CHECK,
-                    PuzzleTheme.SACRIFICE, PuzzleTheme.DEFLECTION, PuzzleTheme.DECOY,
-                    PuzzleTheme.INTERFERENCE, PuzzleTheme.OVERLOADING,
-                    PuzzleTheme.TRAPPED_PIECE, PuzzleTheme.HANGING_PIECE,
-                    PuzzleTheme.ZUGZWANG, PuzzleTheme.QUIET_MOVE,
-                    PuzzleTheme.X_RAY_ATTACK, PuzzleTheme.CLEARANCE,
-                    PuzzleTheme.INTERMEZZO
-                )
+                tacticalThemes.forEach { theme ->
+                    ThemeChip(
+                        theme = theme,
+                        selected = theme in uiState.selectedThemes,
+                        onToggle = { viewModel.toggleTheme(theme) }
+                    )
+                }
+            }
 
-                val mateThemes = listOf(
-                    PuzzleTheme.MATE_IN_1, PuzzleTheme.MATE_IN_2, PuzzleTheme.MATE_IN_3,
-                    PuzzleTheme.BACK_RANK_MATE, PuzzleTheme.SMOTHERED_MATE,
-                    PuzzleTheme.ARABIAN_MATE, PuzzleTheme.HOOK_MATE
-                )
+            // Mating Patterns
+            Text(
+                text = "MATTMUSTER",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                mateThemes.forEach { theme ->
+                    ThemeChip(
+                        theme = theme,
+                        selected = theme in uiState.selectedThemes,
+                        onToggle = { viewModel.toggleTheme(theme) }
+                    )
+                }
+            }
 
-                val phaseThemes = listOf(
-                    PuzzleTheme.OPENING, PuzzleTheme.MIDDLEGAME, PuzzleTheme.ENDGAME,
-                    PuzzleTheme.PAWN_ENDGAME, PuzzleTheme.ROOK_ENDGAME
-                )
-
-                (tacticalThemes + mateThemes + phaseThemes).forEach { theme ->
+            // Game Phase
+            Text(
+                text = "SPIELPHASE",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                phaseThemes.forEach { theme ->
                     ThemeChip(
                         theme = theme,
                         selected = theme in uiState.selectedThemes,
@@ -170,7 +227,7 @@ fun CreateSuiteScreen(
             Button(
                 onClick = { viewModel.createSuite(onSuiteCreated) },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isCreating && uiState.name.isNotBlank()
+                enabled = !uiState.isCreating
             ) {
                 if (uiState.isCreating) {
                     CircularProgressIndicator(

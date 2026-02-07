@@ -146,7 +146,7 @@ fun TrainingScreen(
                 }
 
                 // Correct / Wrong counter
-                if (uiState.correctCount > 0 || uiState.wrongCount > 0) {
+                run {
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth().then(hp),

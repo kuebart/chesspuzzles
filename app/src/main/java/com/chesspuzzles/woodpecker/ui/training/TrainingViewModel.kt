@@ -294,8 +294,6 @@ class TrainingViewModel @Inject constructor(
         val state = _uiState.value
         if (state.moveHistoryIndex <= 1) return
 
-        pauseTimer()
-
         val newIndex = state.moveHistoryIndex - 1
         reconstructBoard(newIndex)
         _uiState.update {
@@ -318,10 +316,6 @@ class TrainingViewModel @Inject constructor(
         val atLiveEnd = newIndex == moveHistory.size
         val puzzleActive = state.result == PuzzleResult.NONE && !state.isReviewingPastPuzzle
 
-        if (atLiveEnd && puzzleActive) {
-            resumeTimer()
-        }
-
         _uiState.update {
             it.copy(
                 moveHistoryIndex = newIndex,
@@ -333,8 +327,6 @@ class TrainingViewModel @Inject constructor(
     fun onNavigateToPuzzle(index: Int) {
         if (index < 0 || index >= puzzles.size) return
         val state = _uiState.value
-
-        pauseTimer()
 
         // If currently on the live puzzle (not already reviewing), save state
         if (!state.isReviewingPastPuzzle) {
@@ -391,10 +383,6 @@ class TrainingViewModel @Inject constructor(
 
         val atLiveEnd = saved.moveHistoryIndex == moveHistory.size
         val puzzleActive = saved.result == PuzzleResult.NONE
-
-        if (atLiveEnd && puzzleActive) {
-            resumeTimer()
-        }
 
         _uiState.update {
             it.copy(

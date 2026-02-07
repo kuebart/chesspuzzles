@@ -28,6 +28,8 @@ class SuiteRepository @Inject constructor(
     suspend fun getSuiteById(suiteId: Long): Suite? =
         suiteDao.getSuiteById(suiteId)?.toDomain()
 
+    suspend fun getSuiteCount(): Int = suiteDao.getSuiteCount()
+
     fun observeSuiteById(suiteId: Long): Flow<Suite?> =
         suiteDao.observeSuiteById(suiteId).map { it?.toDomain() }
 

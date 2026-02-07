@@ -80,30 +80,20 @@ class CreateSuiteViewModel @Inject constructor(
         }
     }
 
-    private fun generateAutoName(state: CreateSuiteUiState): String {
-        val parts = mutableListOf<String>()
-
-        if (state.selectedThemes.isNotEmpty()) {
-            val themeNames = state.selectedThemes.take(3).map { it.displayName }
-            parts.add(themeNames.joinToString(", "))
-            if (state.selectedThemes.size > 3) {
-                parts.add("+${state.selectedThemes.size - 3}")
-            }
-        }
-
-        parts.add("${state.ratingMin}-${state.ratingMax}")
-
-        return parts.joinToString(" ")
+    private suspend fun generateAutoName(): String {
+        val count = suiteRepository.getSuiteCount()
+        return "Suite ${count + 1}"
     }
 
     fun createSuite(onSuccess: (Long) -> Unit) {
         val state = _uiState.value
-        val name = state.name.ifBlank { generateAutoName(state) }
 
         _uiState.update { it.copy(isCreating = true, error = null) }
 
         viewModelScope.launch {
             try {
+                val name = state.name.ifBlank { generateAutoName() }
+
                 val puzzles = puzzleRepository.findPuzzles(
                     themes = state.selectedThemes.toList(),
                     ratingMin = state.ratingMin,

@@ -71,21 +71,11 @@ fun CreateSuiteScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            val autoName = buildString {
-                if (uiState.selectedThemes.isNotEmpty()) {
-                    val names = uiState.selectedThemes.take(3).map { it.displayName }
-                    append(names.joinToString(", "))
-                    if (uiState.selectedThemes.size > 3) append(" +${uiState.selectedThemes.size - 3}")
-                    append(" ")
-                }
-                append("${uiState.ratingMin}-${uiState.ratingMax}")
-            }
-
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = viewModel::setName,
                 label = { Text("Suite Name") },
-                placeholder = { Text(autoName, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
+                placeholder = { Text("Suite ...", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )

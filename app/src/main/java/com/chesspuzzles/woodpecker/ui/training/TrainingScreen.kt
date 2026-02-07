@@ -97,7 +97,7 @@ fun TrainingScreen(
                     .padding(padding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Timer
                 TimerDisplay(
@@ -106,7 +106,7 @@ fun TrainingScreen(
                     offsetMs = uiState.timerOffsetMs
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Puzzle Navigation (centered)
                 Row(
@@ -153,7 +153,7 @@ fun TrainingScreen(
 
                 // Correct / Wrong counter
                 if (uiState.correctCount > 0 || uiState.wrongCount > 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth().then(hp),
                         horizontalArrangement = Arrangement.Center,
@@ -177,7 +177,7 @@ fun TrainingScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Side to play / Review indicator + Puzzle ID
                 Row(
@@ -219,7 +219,7 @@ fun TrainingScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Chess Board - full width, no horizontal padding
                 ChessBoard(
@@ -231,7 +231,7 @@ fun TrainingScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Move History Navigation (always visible when there are moves)
                 if (uiState.moveHistorySize > 0) {
@@ -273,7 +273,7 @@ fun TrainingScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Feedback area
                 when (uiState.result) {

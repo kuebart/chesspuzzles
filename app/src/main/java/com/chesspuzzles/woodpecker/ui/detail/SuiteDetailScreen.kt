@@ -55,6 +55,7 @@ import com.chesspuzzles.woodpecker.util.TimeFormatter
 fun SuiteDetailScreen(
     onBack: () -> Unit,
     onCycleClick: (cycleId: Long) -> Unit,
+    onContinueCycle: (suiteId: Long, cycleId: Long) -> Unit,
     viewModel: SuiteDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -202,7 +203,13 @@ fun SuiteDetailScreen(
                     CycleRow(
                         cycle = cycle,
                         stats = stats,
-                        onClick = { onCycleClick(cycle.id) }
+                        onClick = {
+                            if (cycle.completedAt == null) {
+                                onContinueCycle(suite.id, cycle.id)
+                            } else {
+                                onCycleClick(cycle.id)
+                            }
+                        }
                     )
                 }
 

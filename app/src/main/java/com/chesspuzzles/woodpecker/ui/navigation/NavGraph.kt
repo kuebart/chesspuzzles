@@ -65,6 +65,9 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() },
                 onCycleClick = { cycleId ->
                     navController.navigate(Routes.cycleSummary(cycleId))
+                },
+                onContinueCycle = { suiteId, cycleId ->
+                    navController.navigate(Routes.training(suiteId, cycleId))
                 }
             )
         }

@@ -255,6 +255,12 @@ private fun CycleRow(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
+                } else if (stats != null) {
+                    Text(
+                        text = "${(stats.accuracy * 100).toInt()}% korrekt",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
 

@@ -249,36 +249,26 @@ private fun SuiteCard(
         shape = MaterialTheme.shapes.medium
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = suite.name,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = onStartTraining,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = suite.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f)
+                Icon(
+                    Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 4.dp)
                 )
                 if (suite.activeCycleProgress != null && suite.activeCycleProgress > 0) {
-                    Button(
-                        onClick = onStartTraining,
-                        contentPadding = ButtonDefaults.ContentPadding
-                    ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 4.dp)
-                        )
-                        Text("${strings.taskProgress} ${suite.activeCycleProgress!! + 1} / ${suite.puzzleCount}")
-                    }
+                    Text("${strings.taskProgress} ${suite.activeCycleProgress!! + 1} / ${suite.puzzleCount}")
                 } else {
-                    IconButton(onClick = onStartTraining) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = strings.startTraining,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    Text(strings.startTraining)
                 }
             }
 

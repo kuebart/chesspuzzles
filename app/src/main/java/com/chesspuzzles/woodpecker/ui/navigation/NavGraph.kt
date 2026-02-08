@@ -81,6 +81,9 @@ fun NavGraph(
                 },
                 onContinueCycle = { suiteId, cycleId ->
                     navController.navigate(Routes.training(suiteId, cycleId))
+                },
+                onStartTraining = { suiteId, cycleId ->
+                    navController.navigate(Routes.training(suiteId, cycleId))
                 }
             )
         }

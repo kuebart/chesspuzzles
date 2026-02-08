@@ -17,8 +17,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +53,7 @@ import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
 import com.chesspuzzles.woodpecker.util.TimeFormatter
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -57,10 +61,12 @@ fun SuiteDetailScreen(
     onBack: () -> Unit,
     onCycleClick: (cycleId: Long) -> Unit,
     onContinueCycle: (suiteId: Long, cycleId: Long) -> Unit,
+    onStartTraining: (suiteId: Long, cycleId: Long) -> Unit = onContinueCycle,
     viewModel: SuiteDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val strings = LocalStrings.current
 
     if (showDeleteDialog) {
@@ -159,6 +165,37 @@ fun SuiteDetailScreen(
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+
+                // Start Training button
+                val hasActiveCycle = uiState.cycles.any { it.first.completedAt == null }
+                item {
+                    Button(
+                        onClick = {
+                            if (hasActiveCycle) {
+                                val active = uiState.cycles.first { it.first.completedAt == null }
+                                onContinueCycle(suite.id, active.first.id)
+                            } else {
+                                scope.launch {
+                                    val cycleId = viewModel.getOrCreateCycle()
+                                    onStartTraining(suite.id, cycleId)
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        if (hasActiveCycle) {
+                            val active = uiState.cycles.first { it.first.completedAt == null }
+                            Text("${strings.taskProgress} ${(active.third ?: 0) + 1} / ${suite.puzzleCount}")
+                        } else {
+                            Text(strings.startTraining)
                         }
                     }
                 }

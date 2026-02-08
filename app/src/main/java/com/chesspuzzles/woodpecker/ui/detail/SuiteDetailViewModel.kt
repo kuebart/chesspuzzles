@@ -65,4 +65,8 @@ class SuiteDetailViewModel @Inject constructor(
         }
     }
 
+    suspend fun getOrCreateCycle(): Long {
+        return suiteRepository.getOrCreateActiveCycle(suiteId)
+    }
+
 }

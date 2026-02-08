@@ -10,5 +10,6 @@ data class Suite(
     val puzzleCount: Int,
     val cycleCount: Int = 0,
     val lastCycleAccuracy: Float? = null,
-    val activeCycleProgress: Int? = null
+    val activeCycleProgress: Int? = null,
+    val failedPuzzleCount: Int = 0
 )

@@ -18,9 +18,7 @@ import javax.inject.Inject
 data class SuiteDetailUiState(
     val suite: Suite? = null,
     val cycles: List<Pair<Cycle, CycleStats?>> = emptyList(),
-    val isLoading: Boolean = true,
-    val activeCycleProgress: Int? = null,
-    val failedPuzzleCount: Int = 0
+    val isLoading: Boolean = true
 )
 
 @HiltViewModel
@@ -47,20 +45,11 @@ class SuiteDetailViewModel @Inject constructor(
                 Pair(cycle, stats)
             }
 
-            val activeCycle = suiteRepository.getActiveCycle(suiteId)
-            val activeCycleProgress = if (activeCycle != null) {
-                suiteRepository.getAttemptCountForCycle(activeCycle.id)
-            } else null
-
-            val failedCount = suiteRepository.getLastCompletedCycleFailedCount(suiteId)
-
             _uiState.update {
                 it.copy(
                     suite = suite,
                     cycles = cyclesWithStats,
-                    isLoading = false,
-                    activeCycleProgress = activeCycleProgress,
-                    failedPuzzleCount = failedCount
+                    isLoading = false
                 )
             }
         }
@@ -73,18 +62,4 @@ class SuiteDetailViewModel @Inject constructor(
         }
     }
 
-    fun startTraining(onStart: (suiteId: Long, cycleId: Long, retry: Boolean) -> Unit) {
-        viewModelScope.launch {
-            val cycleId = suiteRepository.getOrCreateActiveCycle(suiteId)
-            onStart(suiteId, cycleId, false)
-        }
-    }
-
-    fun startRetryTraining(onStart: (suiteId: Long, cycleId: Long, retry: Boolean) -> Unit) {
-        viewModelScope.launch {
-            val cycleId = suiteRepository.getLastCompletedCycleId(suiteId) ?: return@launch
-            suiteRepository.reopenCycleForRetry(cycleId)
-            onStart(suiteId, cycleId, true)
-        }
-    }
 }

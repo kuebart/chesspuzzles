@@ -38,6 +38,9 @@ fun NavGraph(navController: NavHostController) {
                 onSuiteClick = { suiteId -> navController.navigate(Routes.suiteDetail(suiteId)) },
                 onStartTraining = { suiteId, cycleId ->
                     navController.navigate(Routes.training(suiteId, cycleId))
+                },
+                onStartRetry = { suiteId, cycleId ->
+                    navController.navigate(Routes.training(suiteId, cycleId, retry = true))
                 }
             )
         }
@@ -60,9 +63,6 @@ fun NavGraph(navController: NavHostController) {
         ) {
             SuiteDetailScreen(
                 onBack = { navController.popBackStack() },
-                onStartTraining = { suiteId, cycleId, retry ->
-                    navController.navigate(Routes.training(suiteId, cycleId, retry))
-                },
                 onCycleClick = { cycleId ->
                     navController.navigate(Routes.cycleSummary(cycleId))
                 }

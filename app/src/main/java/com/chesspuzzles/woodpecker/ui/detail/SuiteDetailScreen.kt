@@ -17,19 +17,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -60,7 +54,6 @@ import com.chesspuzzles.woodpecker.util.TimeFormatter
 @Composable
 fun SuiteDetailScreen(
     onBack: () -> Unit,
-    onStartTraining: (suiteId: Long, cycleId: Long, retry: Boolean) -> Unit,
     onCycleClick: (cycleId: Long) -> Unit,
     viewModel: SuiteDetailViewModel = hiltViewModel()
 ) {
@@ -166,49 +159,6 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                item {
-                    val progress = uiState.activeCycleProgress
-                    Button(
-                        onClick = { viewModel.startTraining(onStartTraining) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        if (progress != null && progress > 0) {
-                            Text("Continue ($progress/${suite.puzzleCount})")
-                        } else {
-                            Text("Start Training")
-                        }
-                    }
-                    if (progress != null && progress > 0) {
-                        LinearProgressIndicator(
-                            progress = { progress.toFloat() / suite.puzzleCount },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp),
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
-                    }
-
-                    if (uiState.failedPuzzleCount > 0) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = { viewModel.startRetryTraining(onStartTraining) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                Icons.Default.Refresh,
-                                contentDescription = null,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                            Text("Fehler wiederholen (${uiState.failedPuzzleCount})")
-                        }
-                    }
-                }
-
                 // Progress chart
                 val completedCycles = uiState.cycles.filter { it.second != null }
                 if (completedCycles.size > 1) {
@@ -240,7 +190,7 @@ fun SuiteDetailScreen(
                 if (uiState.cycles.isEmpty()) {
                     item {
                         Text(
-                            text = "No cycles yet. Start training!",
+                            text = "No cycles yet.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 16.dp)

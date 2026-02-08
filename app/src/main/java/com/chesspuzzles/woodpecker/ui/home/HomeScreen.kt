@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,6 +57,7 @@ fun HomeScreen(
     onCreateSuite: () -> Unit,
     onSuiteClick: (Long) -> Unit,
     onStartTraining: (suiteId: Long, cycleId: Long) -> Unit,
+    onStartRetry: (suiteId: Long, cycleId: Long) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -143,6 +146,12 @@ fun HomeScreen(
                                 val cycleId = viewModel.getOrCreateCycleForSuite(suite.id)
                                 onStartTraining(suite.id, cycleId)
                             }
+                        },
+                        onStartRetry = {
+                            scope.launch {
+                                val cycleId = viewModel.startRetryForSuite(suite.id)
+                                onStartRetry(suite.id, cycleId)
+                            }
                         }
                     )
                 }
@@ -203,7 +212,8 @@ private fun StatCard(value: String, label: String, modifier: Modifier = Modifier
 private fun SuiteCard(
     suite: Suite,
     onClick: () -> Unit,
-    onStartTraining: () -> Unit
+    onStartTraining: () -> Unit,
+    onStartRetry: () -> Unit
 ) {
     val accentColor = MaterialTheme.colorScheme.primary
     Card(
@@ -265,6 +275,22 @@ private fun SuiteCard(
                         .padding(top = 8.dp),
                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
+            }
+
+            if (suite.failedPuzzleCount > 0 && (suite.activeCycleProgress == null || suite.activeCycleProgress == 0)) {
+                OutlinedButton(
+                    onClick = onStartRetry,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                    Text("Fehler wiederholen (${suite.failedPuzzleCount})")
+                }
             }
 
             if (suite.themes.isNotEmpty()) {

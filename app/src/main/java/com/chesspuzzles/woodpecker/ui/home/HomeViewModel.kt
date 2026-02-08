@@ -45,10 +45,13 @@ class HomeViewModel @Inject constructor(
                 suiteRepository.getAttemptCountForCycle(activeCycle.id)
             } else null
 
+            val failedCount = suiteRepository.getLastCompletedCycleFailedCount(suite.id)
+
             suite.copy(
                 cycleCount = cycles.size,
                 lastCycleAccuracy = lastAccuracy,
-                activeCycleProgress = activeCycleProgress
+                activeCycleProgress = activeCycleProgress,
+                failedPuzzleCount = failedCount
             )
         }
 
@@ -66,5 +69,11 @@ class HomeViewModel @Inject constructor(
 
     suspend fun getOrCreateCycleForSuite(suiteId: Long): Long {
         return suiteRepository.getOrCreateActiveCycle(suiteId)
+    }
+
+    suspend fun startRetryForSuite(suiteId: Long): Long {
+        val cycleId = suiteRepository.getLastCompletedCycleId(suiteId) ?: throw IllegalStateException()
+        suiteRepository.reopenCycleForRetry(cycleId)
+        return cycleId
     }
 }

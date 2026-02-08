@@ -10,12 +10,14 @@ import com.chesspuzzles.woodpecker.ui.create.CreateSuiteScreen
 
 import com.chesspuzzles.woodpecker.ui.detail.SuiteDetailScreen
 import com.chesspuzzles.woodpecker.ui.home.HomeScreen
+import com.chesspuzzles.woodpecker.ui.settings.SettingsScreen
 import com.chesspuzzles.woodpecker.ui.summary.CycleSummaryScreen
 import com.chesspuzzles.woodpecker.ui.training.TrainingScreen
 
 object Routes {
     const val HOME = "home"
     const val CREATE_SUITE = "create"
+    const val SETTINGS = "settings"
 
     const val SUITE_DETAIL = "suite/{suiteId}"
     const val TRAINING = "training/{suiteId}/{cycleId}?retry={retry}"
@@ -27,7 +29,10 @@ object Routes {
 }
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(
+    navController: NavHostController,
+    onLanguageChanged: (String) -> Unit
+) {
     NavHost(
         navController = navController,
         startDestination = Routes.HOME
@@ -41,7 +46,8 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onStartRetry = { suiteId, cycleId ->
                     navController.navigate(Routes.training(suiteId, cycleId, retry = true))
-                }
+                },
+                onOpenSettings = { navController.navigate(Routes.SETTINGS) }
             )
         }
 
@@ -53,6 +59,13 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigate(Routes.suiteDetail(suiteId))
                 },
 
+            )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onLanguageChanged = onLanguageChanged
             )
         }
 

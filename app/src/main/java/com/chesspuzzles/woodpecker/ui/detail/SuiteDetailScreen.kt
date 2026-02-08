@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
+import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
 import com.chesspuzzles.woodpecker.util.TimeFormatter
@@ -60,23 +61,24 @@ fun SuiteDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val strings = LocalStrings.current
 
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Suite") },
-            text = { Text("Are you sure you want to delete this suite and all its cycles?") },
+            title = { Text(strings.deleteSuiteTitle) },
+            text = { Text(strings.deleteSuiteConfirm) },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteDialog = false
                     viewModel.deleteSuite(onBack)
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(strings.delete, color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
@@ -85,15 +87,15 @@ fun SuiteDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(uiState.suite?.name ?: "Suite") },
+                title = { Text(uiState.suite?.name ?: strings.suiteDefault) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 actions = {
                     IconButton(onClick = { showDeleteDialog = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete Suite")
+                        Icon(Icons.Default.Delete, contentDescription = strings.deleteSuiteTitle)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -134,11 +136,11 @@ fun SuiteDetailScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "${suite.puzzleCount} puzzles",
+                                text = "${suite.puzzleCount} ${strings.puzzlesCount}",
                                 style = MaterialTheme.typography.titleMedium
                             )
                             Text(
-                                text = "Rating: ${suite.ratingMin} - ${suite.ratingMax}",
+                                text = "${strings.ratingLabel}: ${suite.ratingMin} - ${suite.ratingMax}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -149,9 +151,10 @@ fun SuiteDetailScreen(
                                     modifier = Modifier.padding(top = 8.dp)
                                 ) {
                                     suite.themes.forEach { theme ->
+                                        val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
                                         AssistChip(
                                             onClick = {},
-                                            label = { Text(theme.displayName) }
+                                            label = { Text(themeName) }
                                         )
                                     }
                                 }
@@ -166,7 +169,7 @@ fun SuiteDetailScreen(
                 if (completedCycles.size > 1) {
                     item {
                         Text(
-                            text = "Progress",
+                            text = strings.progress,
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(top = 8.dp)
                         )
@@ -183,7 +186,7 @@ fun SuiteDetailScreen(
                 // Cycles list
                 item {
                     Text(
-                        text = "Cycles",
+                        text = strings.cycles,
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -192,7 +195,7 @@ fun SuiteDetailScreen(
                 if (uiState.cycles.isEmpty()) {
                     item {
                         Text(
-                            text = "No cycles yet.",
+                            text = strings.noCyclesYet,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 16.dp)
@@ -230,6 +233,7 @@ private fun CycleRow(
     totalPuzzles: Int,
     onClick: () -> Unit
 ) {
+    val strings = LocalStrings.current
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -246,18 +250,18 @@ private fun CycleRow(
         ) {
             Column {
                 Text(
-                    text = "Cycle ${cycle.cycleNumber}",
+                    text = "${strings.cycle} ${cycle.cycleNumber}",
                     style = MaterialTheme.typography.titleSmall
                 )
                 if (cycle.completedAt == null && progress != null) {
                     Text(
-                        text = "Aufgabe ${progress + 1} / $totalPuzzles",
+                        text = "${strings.taskProgress} ${progress + 1} / $totalPuzzles",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else if (stats != null) {
                     Text(
-                        text = "${(stats.accuracy * 100).toInt()}% korrekt",
+                        text = "${(stats.accuracy * 100).toInt()}% ${strings.correct}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -272,7 +276,7 @@ private fun CycleRow(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = "Time",
+                            text = strings.time,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -283,7 +287,7 @@ private fun CycleRow(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = "Accuracy",
+                            text = strings.accuracy,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

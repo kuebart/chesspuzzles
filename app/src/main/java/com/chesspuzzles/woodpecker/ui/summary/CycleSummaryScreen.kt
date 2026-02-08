@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartBarDefault
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
@@ -55,14 +56,15 @@ fun CycleSummaryScreen(
     viewModel: CycleSummaryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Cycle Summary") },
+                title = { Text(strings.cycleSummary) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -94,7 +96,7 @@ fun CycleSummaryScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Cycle ${uiState.cycleNumber}",
+                    text = "${strings.cycle} ${uiState.cycleNumber}",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -108,14 +110,14 @@ fun CycleSummaryScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            title = "Total Time",
+                            title = strings.totalTime,
                             value = TimeFormatter.formatMs(stats.totalTimeMs),
                             delta = stats.timeDeltaMs?.let { TimeFormatter.formatDelta(it) },
                             deltaPositive = stats.timeDeltaMs?.let { it < 0 },
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            title = "Accuracy",
+                            title = strings.accuracy,
                             value = "${(stats.accuracy * 100).toInt()}%",
                             delta = stats.accuracyDelta?.let {
                                 "${if (it >= 0) "+" else ""}${(it * 100).toInt()}%"
@@ -132,12 +134,12 @@ fun CycleSummaryScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            title = "Solved",
+                            title = strings.solved,
                             value = "${stats.solvedCount} / ${stats.totalPuzzles}",
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            title = "Avg Time",
+                            title = strings.avgTime,
                             value = TimeFormatter.formatMsShort(stats.averageTimeMs),
                             modifier = Modifier.weight(1f)
                         )
@@ -147,7 +149,7 @@ fun CycleSummaryScreen(
                     if (uiState.allCycleStats.size > 1) {
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "Time per Cycle",
+                            text = strings.timePerCycle,
                             style = MaterialTheme.typography.titleMedium
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -173,7 +175,7 @@ fun CycleSummaryScreen(
                             .size(20.dp)
                             .padding(end = 4.dp)
                     )
-                    Text("Start Next Cycle")
+                    Text(strings.startNextCycle)
                 }
 
                 if (uiState.failedCount > 0) {
@@ -189,7 +191,7 @@ fun CycleSummaryScreen(
                                 .size(20.dp)
                                 .padding(end = 4.dp)
                         )
-                        Text("Fehler wiederholen (${uiState.failedCount})")
+                        Text("${strings.retryErrors} (${uiState.failedCount})")
                     }
                 }
 

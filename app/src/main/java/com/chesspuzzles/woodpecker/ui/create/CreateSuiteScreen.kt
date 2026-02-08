@@ -35,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.PuzzleTheme
 import com.chesspuzzles.woodpecker.ui.components.ThemeChip
+import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -44,14 +45,15 @@ fun CreateSuiteScreen(
     viewModel: CreateSuiteViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Create Suite") },
+                title = { Text(strings.createSuiteTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -74,15 +76,15 @@ fun CreateSuiteScreen(
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = viewModel::setName,
-                label = { Text("Suite Name") },
-                placeholder = { Text("Suite ...", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
+                label = { Text(strings.suiteName) },
+                placeholder = { Text(strings.suiteNamePlaceholder, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
             // Theme Selection
             Text(
-                text = "Themes",
+                text = strings.themes,
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -110,7 +112,7 @@ fun CreateSuiteScreen(
 
             // Tactical Motifs
             Text(
-                text = "TAKTISCHE MOTIVE",
+                text = strings.tacticalMotifs,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -129,7 +131,7 @@ fun CreateSuiteScreen(
 
             // Mating Patterns
             Text(
-                text = "MATTMUSTER",
+                text = strings.matingPatterns,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -148,7 +150,7 @@ fun CreateSuiteScreen(
 
             // Game Phase
             Text(
-                text = "SPIELPHASE",
+                text = strings.gamePhase,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -167,7 +169,7 @@ fun CreateSuiteScreen(
 
             // Rating Range
             Text(
-                text = "Rating Range: ${uiState.ratingMin} - ${uiState.ratingMax}",
+                text = "${strings.ratingRange}: ${uiState.ratingMin} - ${uiState.ratingMax}",
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -183,7 +185,7 @@ fun CreateSuiteScreen(
 
             // Puzzle Count
             Text(
-                text = "Puzzle Count: ${uiState.puzzleCount}",
+                text = "${strings.puzzleCount}: ${uiState.puzzleCount}",
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -197,7 +199,7 @@ fun CreateSuiteScreen(
 
             // Matching count preview
             Text(
-                text = "${uiState.matchingPuzzleCount} matching puzzles available",
+                text = "${uiState.matchingPuzzleCount} ${strings.matchingPuzzlesAvailable}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (uiState.matchingPuzzleCount >= uiState.puzzleCount) {
                     MaterialTheme.colorScheme.primary
@@ -224,7 +226,7 @@ fun CreateSuiteScreen(
                         modifier = Modifier.padding(end = 8.dp)
                     )
                 }
-                Text("Create Suite")
+                Text(strings.createSuiteButton)
             }
 
             Spacer(modifier = Modifier.height(32.dp))

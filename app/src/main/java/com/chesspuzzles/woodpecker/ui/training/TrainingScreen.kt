@@ -40,6 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.ui.components.PuzzleProgressBar
 import com.chesspuzzles.woodpecker.ui.components.TimerDisplay
 import com.chesspuzzles.woodpecker.ui.components.chessboard.ChessBoard
+import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
 import com.chesspuzzles.woodpecker.ui.theme.WrongRed
 
@@ -51,6 +52,7 @@ fun TrainingScreen(
     viewModel: TrainingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val strings = LocalStrings.current
 
     LaunchedEffect(uiState.isComplete) {
         if (uiState.isComplete) {
@@ -61,10 +63,10 @@ fun TrainingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Training") },
+                title = { Text(strings.training) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -116,7 +118,7 @@ fun TrainingScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Previous puzzle",
+                            contentDescription = strings.previousPuzzle,
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -139,7 +141,7 @@ fun TrainingScreen(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Next puzzle",
+                            contentDescription = strings.nextPuzzle,
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -154,7 +156,7 @@ fun TrainingScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${uiState.correctCount} correct",
+                            text = "${uiState.correctCount} ${strings.correctLabel}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = CorrectGreen
                         )
@@ -164,7 +166,7 @@ fun TrainingScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "${uiState.wrongCount} wrong",
+                            text = "${uiState.wrongCount} ${strings.wrongLabel}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = WrongRed
                         )
@@ -185,19 +187,20 @@ fun TrainingScreen(
                             color = MaterialTheme.colorScheme.primaryContainer
                         ) {
                             Text(
-                                text = "Reviewing",
+                                text = strings.reviewing,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                             )
                         }
                     } else {
+                        val sideText = if (uiState.sideToPlay == "Black") strings.black else strings.white
                         Surface(
                             shape = MaterialTheme.shapes.small,
                             color = MaterialTheme.colorScheme.surfaceContainerHigh
                         ) {
                             Text(
-                                text = "${uiState.sideToPlay} to play",
+                                text = "$sideText ${strings.toPlay}",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
@@ -240,7 +243,7 @@ fun TrainingScreen(
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                contentDescription = "Previous move",
+                                contentDescription = strings.previousMove,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -254,7 +257,7 @@ fun TrainingScreen(
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = "Next move",
+                                contentDescription = strings.nextMove,
                                 modifier = Modifier.size(32.dp)
                             )
                         }
@@ -265,7 +268,7 @@ fun TrainingScreen(
                 if (uiState.isReviewingPastPuzzle) {
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(onClick = viewModel::onReturnToLivePuzzle) {
-                        Text("Return to current puzzle")
+                        Text(strings.returnToCurrentPuzzle)
                     }
                 }
 
@@ -286,13 +289,13 @@ fun TrainingScreen(
                             )
                             Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                             Text(
-                                text = "Correct!",
+                                text = strings.correctFeedback,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = CorrectGreen
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Button(onClick = viewModel::onContinue) {
-                                Text("Continue")
+                                Text(strings.continueButton)
                             }
                         }
                     }
@@ -309,14 +312,14 @@ fun TrainingScreen(
                             )
                             Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                             Text(
-                                text = "Incorrect",
+                                text = strings.incorrectFeedback,
                                 style = MaterialTheme.typography.titleMedium,
                                 color = WrongRed
                             )
                             if (uiState.showContinueButton) {
                                 Spacer(modifier = Modifier.weight(1f))
                                 Button(onClick = viewModel::onContinue) {
-                                    Text("Continue")
+                                    Text(strings.continueButton)
                                 }
                             }
                         }

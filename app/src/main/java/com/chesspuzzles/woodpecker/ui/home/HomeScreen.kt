@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.Suite
+import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -58,19 +60,30 @@ fun HomeScreen(
     onSuiteClick: (Long) -> Unit,
     onStartTraining: (suiteId: Long, cycleId: Long) -> Unit,
     onStartRetry: (suiteId: Long, cycleId: Long) -> Unit,
+    onOpenSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Woodpecker",
+                        strings.appTitle,
                         color = MaterialTheme.colorScheme.primary
                     )
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = strings.settingsTitle,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -83,7 +96,7 @@ fun HomeScreen(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Create Suite")
+                Icon(Icons.Default.Add, contentDescription = strings.createSuite)
             }
         }
     ) { padding ->
@@ -123,12 +136,12 @@ fun HomeScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "No suites yet",
+                                text = strings.noSuitesYet,
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "Create your first puzzle suite to start training",
+                                text = strings.noSuitesSubtitle,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 8.dp)
@@ -164,18 +177,19 @@ fun HomeScreen(
 
 @Composable
 private fun StatsRow(totalSolved: Int, trainingDays: Int) {
+    val strings = LocalStrings.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         StatCard(
             value = "$totalSolved",
-            label = "Puzzles Solved",
+            label = strings.puzzlesSolved,
             modifier = Modifier.weight(1f)
         )
         StatCard(
             value = "$trainingDays",
-            label = "Training Days",
+            label = strings.trainingDays,
             modifier = Modifier.weight(1f)
         )
     }
@@ -215,6 +229,7 @@ private fun SuiteCard(
     onStartTraining: () -> Unit,
     onStartRetry: () -> Unit
 ) {
+    val strings = LocalStrings.current
     val accentColor = MaterialTheme.colorScheme.primary
     Card(
         modifier = Modifier
@@ -254,13 +269,13 @@ private fun SuiteCard(
                             contentDescription = null,
                             modifier = Modifier.padding(end = 4.dp)
                         )
-                        Text("Aufgabe ${suite.activeCycleProgress!! + 1} / ${suite.puzzleCount}")
+                        Text("${strings.taskProgress} ${suite.activeCycleProgress!! + 1} / ${suite.puzzleCount}")
                     }
                 } else {
                     IconButton(onClick = onStartTraining) {
                         Icon(
                             Icons.Default.PlayArrow,
-                            contentDescription = "Start Training",
+                            contentDescription = strings.startTraining,
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -289,7 +304,7 @@ private fun SuiteCard(
                         contentDescription = null,
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    Text("Fehler wiederholen (${suite.failedPuzzleCount})")
+                    Text("${strings.retryErrors} (${suite.failedPuzzleCount})")
                 }
             }
 
@@ -299,9 +314,10 @@ private fun SuiteCard(
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
                     suite.themes.take(5).forEach { theme ->
+                        val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
                         AssistChip(
                             onClick = {},
-                            label = { Text(theme.displayName, style = MaterialTheme.typography.labelSmall) }
+                            label = { Text(themeName, style = MaterialTheme.typography.labelSmall) }
                         )
                     }
                     if (suite.themes.size > 5) {
@@ -320,12 +336,12 @@ private fun SuiteCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${suite.puzzleCount} puzzles",
+                    text = "${suite.puzzleCount} ${strings.puzzlesCount}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Rating ${suite.ratingMin}-${suite.ratingMax}",
+                    text = "${strings.ratingLabel} ${suite.ratingMin}-${suite.ratingMax}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -338,13 +354,13 @@ private fun SuiteCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "${suite.cycleCount} cycles completed",
+                    text = "${suite.cycleCount} ${strings.cyclesCompleted}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 suite.lastCycleAccuracy?.let { accuracy ->
                     Text(
-                        text = "Last: ${(accuracy * 100).toInt()}%",
+                        text = "${strings.lastAccuracy} ${(accuracy * 100).toInt()}%",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

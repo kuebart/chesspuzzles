@@ -167,6 +167,12 @@ class SuiteRepository @Inject constructor(
             .map { it.puzzleId }
     }
 
+    suspend fun getCycleProgress(cycleId: Long): Pair<Int, Int> {
+        val attempts = cycleDao.getAttemptsForCycle(cycleId)
+        val latest = latestAttemptsPerPuzzle(attempts)
+        return Pair(latest.count { it.solved }, latest.count { !it.solved })
+    }
+
     suspend fun getLastCompletedCycleFailedCount(suiteId: Long): Int {
         val cycles = cycleDao.getCyclesForSuite(suiteId)
         val lastCompleted = cycles.lastOrNull { it.completedAt != null } ?: return 0

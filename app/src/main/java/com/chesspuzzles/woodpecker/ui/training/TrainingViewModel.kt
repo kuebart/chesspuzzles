@@ -111,6 +111,8 @@ class TrainingViewModel @Inject constructor(
                 suiteRepository.getAccumulatedTimeForCycle(cycleId)
             } else 0L
 
+            val (initialCorrect, initialWrong) = suiteRepository.getCycleProgress(cycleId)
+
             _uiState.update {
                 it.copy(
                     totalPuzzles = puzzles.size,
@@ -118,7 +120,9 @@ class TrainingViewModel @Inject constructor(
                     isLoading = false,
                     timerStartMs = System.currentTimeMillis(),
                     timerRunning = true,
-                    timerOffsetMs = timerOffset
+                    timerOffsetMs = timerOffset,
+                    correctCount = initialCorrect,
+                    wrongCount = initialWrong
                 )
             }
 
@@ -258,7 +262,8 @@ class TrainingViewModel @Inject constructor(
                     boardEnabled = false,
                     result = PuzzleResult.CORRECT,
                     showContinueButton = true,
-                    correctCount = it.correctCount + 1
+                    correctCount = it.correctCount + 1,
+                    wrongCount = if (retry) it.wrongCount - 1 else it.wrongCount
                 )
             }
         }
@@ -287,7 +292,7 @@ class TrainingViewModel @Inject constructor(
                     boardEnabled = false,
                     result = PuzzleResult.WRONG,
                     showContinueButton = true,
-                    wrongCount = it.wrongCount + 1,
+                    wrongCount = if (retry) it.wrongCount else it.wrongCount + 1,
                     moveHistorySize = moveHistory.size
                     // moveHistoryIndex stays where it is — user can navigate forward to see solution
                 )

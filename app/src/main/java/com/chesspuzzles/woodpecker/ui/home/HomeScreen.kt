@@ -254,7 +254,7 @@ private fun SuiteCard(
                             contentDescription = null,
                             modifier = Modifier.padding(end = 4.dp)
                         )
-                        Text("Continue (${suite.activeCycleProgress}/${suite.puzzleCount})")
+                        Text("Aufgabe ${suite.activeCycleProgress!! + 1} / ${suite.puzzleCount}")
                     }
                 } else {
                     IconButton(onClick = onStartTraining) {

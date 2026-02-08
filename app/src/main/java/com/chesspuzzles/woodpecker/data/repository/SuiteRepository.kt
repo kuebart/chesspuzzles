@@ -152,6 +152,16 @@ class SuiteRepository @Inject constructor(
         }
     }
 
+    suspend fun getFailedPuzzleIdsForLastCycle(suiteId: Long): List<String> {
+        val cycles = cycleDao.getCyclesForSuite(suiteId)
+        val lastCompleted = cycles.lastOrNull { it.completedAt != null } ?: return emptyList()
+        return cycleDao.getFailedPuzzleIdsForCycle(lastCompleted.id)
+    }
+
+    suspend fun getLastCompletedCycleFailedCount(suiteId: Long): Int {
+        return getFailedPuzzleIdsForLastCycle(suiteId).size
+    }
+
     fun observeTrainingDays(): Flow<Int> = cycleDao.observeTrainingDays()
 
     private fun SuiteEntity.toDomain() = Suite(

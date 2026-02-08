@@ -50,6 +50,7 @@ class TrainingViewModel @Inject constructor(
 
     private val suiteId: Long = savedStateHandle["suiteId"]!!
     private val cycleId: Long = savedStateHandle["cycleId"]!!
+    private val retry: Boolean = savedStateHandle["retry"] ?: false
 
     private val _uiState = MutableStateFlow(TrainingUiState())
     val uiState: StateFlow<TrainingUiState> = _uiState.asStateFlow()
@@ -98,7 +99,13 @@ class TrainingViewModel @Inject constructor(
 
     private fun loadPuzzles() {
         viewModelScope.launch {
-            puzzles = puzzleRepository.getPuzzlesForSuite(suiteId)
+            var allPuzzles = puzzleRepository.getPuzzlesForSuite(suiteId)
+            if (retry) {
+                val failedIds = suiteRepository.getFailedPuzzleIdsForLastCycle(suiteId)
+                val failedSet = failedIds.toSet()
+                allPuzzles = allPuzzles.filter { it.id in failedSet }
+            }
+            puzzles = allPuzzles
             val alreadyAttempted = suiteRepository.getAttemptCountForCycle(cycleId)
             val startIndex = alreadyAttempted.coerceAtMost(puzzles.size - 1).coerceAtLeast(0)
             val timerOffset = if (alreadyAttempted > 0) {

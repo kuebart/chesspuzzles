@@ -18,11 +18,11 @@ object Routes {
     const val CREATE_SUITE = "create"
 
     const val SUITE_DETAIL = "suite/{suiteId}"
-    const val TRAINING = "training/{suiteId}/{cycleId}"
+    const val TRAINING = "training/{suiteId}/{cycleId}?retry={retry}"
     const val CYCLE_SUMMARY = "summary/{cycleId}"
 
     fun suiteDetail(suiteId: Long) = "suite/$suiteId"
-    fun training(suiteId: Long, cycleId: Long) = "training/$suiteId/$cycleId"
+    fun training(suiteId: Long, cycleId: Long, retry: Boolean = false) = "training/$suiteId/$cycleId?retry=$retry"
     fun cycleSummary(cycleId: Long) = "summary/$cycleId"
 }
 
@@ -60,8 +60,8 @@ fun NavGraph(navController: NavHostController) {
         ) {
             SuiteDetailScreen(
                 onBack = { navController.popBackStack() },
-                onStartTraining = { suiteId, cycleId ->
-                    navController.navigate(Routes.training(suiteId, cycleId))
+                onStartTraining = { suiteId, cycleId, retry ->
+                    navController.navigate(Routes.training(suiteId, cycleId, retry))
                 },
                 onCycleClick = { cycleId ->
                     navController.navigate(Routes.cycleSummary(cycleId))
@@ -73,7 +73,11 @@ fun NavGraph(navController: NavHostController) {
             route = Routes.TRAINING,
             arguments = listOf(
                 navArgument("suiteId") { type = NavType.LongType },
-                navArgument("cycleId") { type = NavType.LongType }
+                navArgument("cycleId") { type = NavType.LongType },
+                navArgument("retry") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
             )
         ) {
             TrainingScreen(

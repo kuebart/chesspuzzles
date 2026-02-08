@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,6 +53,7 @@ import com.chesspuzzles.woodpecker.domain.model.CycleStats
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
+import com.chesspuzzles.woodpecker.ui.theme.SuiteColors
 import com.chesspuzzles.woodpecker.util.TimeFormatter
 import kotlinx.coroutines.launch
 
@@ -171,6 +173,7 @@ fun SuiteDetailScreen(
 
                 // Start Training button
                 val hasActiveCycle = uiState.cycles.any { it.first.completedAt == null }
+                val suiteAccentColor = SuiteColors[(suite.id % SuiteColors.size).toInt()]
                 item {
                     Button(
                         onClick = {
@@ -184,7 +187,8 @@ fun SuiteDetailScreen(
                                 }
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = suiteAccentColor)
                     ) {
                         Icon(
                             Icons.Default.PlayArrow,

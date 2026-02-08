@@ -46,6 +46,18 @@ val ChartGold = Color(0xFFFFD54F)
 val ChartGoldFill = Color(0x40FFD54F)
 val ChartBarDefault = Color(0xFF5C5C5C)
 
+// Suite accent palette
+val SuiteColors = listOf(
+    Color(0xFFFFD54F), // Gold
+    Color(0xFF64B5F6), // Blue
+    Color(0xFF81C784), // Green
+    Color(0xFFE57373), // Red
+    Color(0xFFBA68C8), // Purple
+    Color(0xFF4DD0E1), // Cyan
+    Color(0xFFFFB74D), // Orange
+    Color(0xFFF06292), // Pink
+)
+
 // Outline
 val OutlineDark = Color(0xFF938F99)
 val OutlineVariantDark = Color(0xFF49454F)

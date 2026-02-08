@@ -45,12 +45,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.Suite
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
+import com.chesspuzzles.woodpecker.ui.theme.SuiteColors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -151,8 +153,10 @@ fun HomeScreen(
                 }
 
                 items(uiState.suites, key = { it.id }) { suite ->
+                    val accentColor = SuiteColors[(suite.id % SuiteColors.size).toInt()]
                     SuiteCard(
                         suite = suite,
+                        accentColor = accentColor,
                         onClick = { onSuiteClick(suite.id) },
                         onStartTraining = {
                             scope.launch {
@@ -225,12 +229,12 @@ private fun StatCard(value: String, label: String, modifier: Modifier = Modifier
 @Composable
 private fun SuiteCard(
     suite: Suite,
+    accentColor: Color,
     onClick: () -> Unit,
     onStartTraining: () -> Unit,
     onStartRetry: () -> Unit
 ) {
     val strings = LocalStrings.current
-    val accentColor = MaterialTheme.colorScheme.primary
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -258,7 +262,8 @@ private fun SuiteCard(
 
             Button(
                 onClick = onStartTraining,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = accentColor)
             ) {
                 Icon(
                     Icons.Default.PlayArrow,
@@ -278,6 +283,7 @@ private fun SuiteCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
+                    color = accentColor,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
@@ -352,7 +358,7 @@ private fun SuiteCard(
                     Text(
                         text = "${strings.lastAccuracy} ${(accuracy * 100).toInt()}%",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = accentColor
                     )
                 }
             }

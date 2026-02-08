@@ -162,6 +162,7 @@ fun SuiteDetailScreen(
 
                 // Progress chart
                 val completedCycles = uiState.cycles.filter { it.second != null }
+                    .map { Pair(it.first, it.second) }
                 if (completedCycles.size > 1) {
                     item {
                         Text(
@@ -199,10 +200,12 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                items(uiState.cycles.reversed()) { (cycle, stats) ->
+                items(uiState.cycles.reversed()) { (cycle, stats, progress) ->
                     CycleRow(
                         cycle = cycle,
                         stats = stats,
+                        progress = progress,
+                        totalPuzzles = suite.puzzleCount,
                         onClick = {
                             if (cycle.completedAt == null) {
                                 onContinueCycle(suite.id, cycle.id)
@@ -223,6 +226,8 @@ fun SuiteDetailScreen(
 private fun CycleRow(
     cycle: Cycle,
     stats: CycleStats?,
+    progress: Int?,
+    totalPuzzles: Int,
     onClick: () -> Unit
 ) {
     Surface(
@@ -244,9 +249,9 @@ private fun CycleRow(
                     text = "Cycle ${cycle.cycleNumber}",
                     style = MaterialTheme.typography.titleSmall
                 )
-                if (cycle.completedAt == null) {
+                if (cycle.completedAt == null && progress != null) {
                     Text(
-                        text = "In progress",
+                        text = "Aufgabe ${progress + 1} / $totalPuzzles",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 data class SuiteDetailUiState(
     val suite: Suite? = null,
-    val cycles: List<Pair<Cycle, CycleStats?>> = emptyList(),
+    val cycles: List<Triple<Cycle, CycleStats?, Int?>> = emptyList(),
     val isLoading: Boolean = true
 )
 
@@ -42,7 +42,10 @@ class SuiteDetailViewModel @Inject constructor(
             val cycles = suiteRepository.getCyclesForSuite(suiteId)
             val cyclesWithStats = cycles.map { cycle ->
                 val stats = suiteRepository.getCycleStats(cycle.id)
-                Pair(cycle, stats)
+                val progress = if (cycle.completedAt == null) {
+                    suiteRepository.getAttemptCountForCycle(cycle.id)
+                } else null
+                Triple(cycle, stats, progress)
             }
 
             _uiState.update {

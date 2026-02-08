@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
             val failedCount = suiteRepository.getLastCompletedCycleFailedCount(suite.id)
 
             suite.copy(
-                cycleCount = cycles.size,
+                cycleCount = cycles.count { it.completedAt != null },
                 lastCycleAccuracy = lastAccuracy,
                 activeCycleProgress = activeCycleProgress,
                 failedPuzzleCount = failedCount

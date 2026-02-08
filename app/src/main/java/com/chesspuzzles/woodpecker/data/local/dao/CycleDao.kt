@@ -55,4 +55,10 @@ interface CycleDao {
 
     @Query("SELECT puzzleId FROM puzzle_attempts WHERE cycleId = :cycleId AND solved = 0")
     suspend fun getFailedPuzzleIdsForCycle(cycleId: Long): List<String>
+
+    @Query("DELETE FROM puzzle_attempts WHERE cycleId = :cycleId AND solved = 0")
+    suspend fun deleteFailedAttemptsForCycle(cycleId: Long)
+
+    @Query("SELECT DISTINCT puzzleId FROM puzzle_attempts WHERE cycleId = :cycleId")
+    suspend fun getAttemptedPuzzleIdsForCycle(cycleId: Long): List<String>
 }

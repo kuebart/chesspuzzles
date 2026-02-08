@@ -15,12 +15,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -49,6 +51,7 @@ import com.chesspuzzles.woodpecker.util.TimeFormatter
 fun CycleSummaryScreen(
     onBack: () -> Unit,
     onStartNextCycle: (suiteId: Long, cycleId: Long) -> Unit,
+    onStartRetry: (suiteId: Long, cycleId: Long) -> Unit,
     viewModel: CycleSummaryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -171,6 +174,23 @@ fun CycleSummaryScreen(
                             .padding(end = 4.dp)
                     )
                     Text("Start Next Cycle")
+                }
+
+                if (uiState.failedCount > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { viewModel.startRetryTraining(onStartRetry) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(end = 4.dp)
+                        )
+                        Text("Fehler wiederholen (${uiState.failedCount})")
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

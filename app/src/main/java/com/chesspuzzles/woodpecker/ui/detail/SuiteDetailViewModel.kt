@@ -82,7 +82,8 @@ class SuiteDetailViewModel @Inject constructor(
 
     fun startRetryTraining(onStart: (suiteId: Long, cycleId: Long, retry: Boolean) -> Unit) {
         viewModelScope.launch {
-            val cycleId = suiteRepository.startNewCycle(suiteId)
+            val cycleId = suiteRepository.getLastCompletedCycleId(suiteId) ?: return@launch
+            suiteRepository.reopenCycleForRetry(cycleId)
             onStart(suiteId, cycleId, true)
         }
     }

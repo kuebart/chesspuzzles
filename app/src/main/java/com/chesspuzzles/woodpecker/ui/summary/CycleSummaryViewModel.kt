@@ -19,7 +19,8 @@ data class CycleSummaryUiState(
     val stats: CycleStats? = null,
     val allCycleStats: List<Pair<Cycle, CycleStats>> = emptyList(),
     val suiteId: Long = 0,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val failedCount: Int = 0
 )
 
 @HiltViewModel
@@ -52,13 +53,15 @@ class CycleSummaryViewModel @Inject constructor(
                     val cycle = suiteCycles.find { it.id == cycleId }
                     if (cycle != null) {
                         val allCycleStats = suiteRepository.getCycleStatsForAllCycles(suite.id)
+                        val failedCount = suiteRepository.getFailedCountForCycle(cycleId)
                         _uiState.update {
                             it.copy(
                                 cycleNumber = cycle.cycleNumber,
                                 stats = stats,
                                 allCycleStats = allCycleStats,
                                 suiteId = suite.id,
-                                isLoading = false
+                                isLoading = false,
+                                failedCount = failedCount
                             )
                         }
                         return@collect
@@ -73,6 +76,13 @@ class CycleSummaryViewModel @Inject constructor(
             val suiteId = _uiState.value.suiteId
             val newCycleId = suiteRepository.startNewCycle(suiteId)
             onStarted(suiteId, newCycleId)
+        }
+    }
+
+    fun startRetryTraining(onStarted: (suiteId: Long, cycleId: Long) -> Unit) {
+        viewModelScope.launch {
+            suiteRepository.reopenCycleForRetry(cycleId)
+            onStarted(_uiState.value.suiteId, cycleId)
         }
     }
 }

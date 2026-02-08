@@ -190,8 +190,8 @@ fun CreateSuiteScreen(
             Slider(
                 value = uiState.puzzleCount.toFloat(),
                 onValueChange = { viewModel.setPuzzleCount(it.toInt()) },
-                valueRange = 50f..1000f,
-                steps = 18,
+                valueRange = 10f..1000f,
+                steps = 98,
                 modifier = Modifier.fillMaxWidth()
             )
 

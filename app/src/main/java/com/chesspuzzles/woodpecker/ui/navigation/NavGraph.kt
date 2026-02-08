@@ -98,6 +98,10 @@ fun NavGraph(navController: NavHostController) {
                 onStartNextCycle = { suiteId, cycleId ->
                     navController.popBackStack()
                     navController.navigate(Routes.training(suiteId, cycleId))
+                },
+                onStartRetry = { suiteId, cycleId ->
+                    navController.popBackStack()
+                    navController.navigate(Routes.training(suiteId, cycleId, retry = true))
                 }
             )
         }

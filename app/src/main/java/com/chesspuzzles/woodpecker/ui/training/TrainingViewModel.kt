@@ -101,14 +101,13 @@ class TrainingViewModel @Inject constructor(
         viewModelScope.launch {
             var allPuzzles = puzzleRepository.getPuzzlesForSuite(suiteId)
             if (retry) {
-                val failedIds = suiteRepository.getFailedPuzzleIdsForLastCycle(suiteId)
-                val failedSet = failedIds.toSet()
-                allPuzzles = allPuzzles.filter { it.id in failedSet }
+                val attemptedIds = suiteRepository.getAttemptedPuzzleIdsForCycle(cycleId)
+                allPuzzles = allPuzzles.filter { it.id !in attemptedIds }
             }
             puzzles = allPuzzles
-            val alreadyAttempted = suiteRepository.getAttemptCountForCycle(cycleId)
+            val alreadyAttempted = if (retry) 0 else suiteRepository.getAttemptCountForCycle(cycleId)
             val startIndex = alreadyAttempted.coerceAtMost(puzzles.size - 1).coerceAtLeast(0)
-            val timerOffset = if (alreadyAttempted > 0) {
+            val timerOffset = if (!retry && alreadyAttempted > 0) {
                 suiteRepository.getAccumulatedTimeForCycle(cycleId)
             } else 0L
 

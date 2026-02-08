@@ -53,12 +53,4 @@ interface CycleDao {
     @Query("SELECT COUNT(DISTINCT DATE(attemptedAt / 1000, 'unixepoch')) FROM puzzle_attempts")
     fun observeTrainingDays(): Flow<Int>
 
-    @Query("SELECT puzzleId FROM puzzle_attempts WHERE cycleId = :cycleId AND solved = 0")
-    suspend fun getFailedPuzzleIdsForCycle(cycleId: Long): List<String>
-
-    @Query("DELETE FROM puzzle_attempts WHERE cycleId = :cycleId AND solved = 0")
-    suspend fun deleteFailedAttemptsForCycle(cycleId: Long)
-
-    @Query("SELECT DISTINCT puzzleId FROM puzzle_attempts WHERE cycleId = :cycleId")
-    suspend fun getAttemptedPuzzleIdsForCycle(cycleId: Long): List<String>
 }

@@ -81,7 +81,6 @@ class CycleSummaryViewModel @Inject constructor(
 
     fun startRetryTraining(onStarted: (suiteId: Long, cycleId: Long) -> Unit) {
         viewModelScope.launch {
-            suiteRepository.reopenCycleForRetry(cycleId)
             onStarted(_uiState.value.suiteId, cycleId)
         }
     }

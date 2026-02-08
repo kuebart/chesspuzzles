@@ -101,8 +101,8 @@ class TrainingViewModel @Inject constructor(
         viewModelScope.launch {
             var allPuzzles = puzzleRepository.getPuzzlesForSuite(suiteId)
             if (retry) {
-                val attemptedIds = suiteRepository.getAttemptedPuzzleIdsForCycle(cycleId)
-                allPuzzles = allPuzzles.filter { it.id !in attemptedIds }
+                val failedIds = suiteRepository.getCurrentlyFailedPuzzleIdsForCycle(cycleId).toSet()
+                allPuzzles = allPuzzles.filter { it.id in failedIds }
             }
             puzzles = allPuzzles
             val alreadyAttempted = if (retry) 0 else suiteRepository.getAttemptCountForCycle(cycleId)
@@ -431,7 +431,9 @@ class TrainingViewModel @Inject constructor(
     }
 
     private suspend fun completeCycle() {
-        suiteRepository.completeCycle(cycleId)
+        if (!retry) {
+            suiteRepository.completeCycle(cycleId)
+        }
         _uiState.update {
             it.copy(
                 isComplete = true,

@@ -109,11 +109,18 @@ class SuiteRepository @Inject constructor(
     suspend fun getAccumulatedTimeForCycle(cycleId: Long): Long =
         cycleDao.getTotalTimeForCycle(cycleId) ?: 0L
 
+    private fun latestAttemptsPerPuzzle(
+        allAttempts: List<PuzzleAttemptEntity>
+    ): List<PuzzleAttemptEntity> =
+        allAttempts.groupBy { it.puzzleId }
+            .map { (_, attempts) -> attempts.maxByOrNull { it.attemptedAt }!! }
+
     suspend fun getCycleStats(cycleId: Long): CycleStats? {
         val cycle = cycleDao.getCycleById(cycleId) ?: return null
-        val attempts = cycleDao.getAttemptsForCycle(cycleId)
-        if (attempts.isEmpty()) return null
+        val allAttempts = cycleDao.getAttemptsForCycle(cycleId)
+        if (allAttempts.isEmpty()) return null
 
+        val attempts = latestAttemptsPerPuzzle(allAttempts)
         val solvedCount = attempts.count { it.solved }
         val totalTime = attempts.sumOf { it.timeMs }
         val accuracy = solvedCount.toFloat() / attempts.size
@@ -125,8 +132,9 @@ class SuiteRepository @Inject constructor(
             val prevCycles = cycleDao.getCyclesForSuite(cycle.suiteId)
             val prevCycle = prevCycles.find { it.cycleNumber == cycle.cycleNumber - 1 }
             if (prevCycle != null) {
-                val prevAttempts = cycleDao.getAttemptsForCycle(prevCycle.id)
-                if (prevAttempts.isNotEmpty()) {
+                val prevAllAttempts = cycleDao.getAttemptsForCycle(prevCycle.id)
+                if (prevAllAttempts.isNotEmpty()) {
+                    val prevAttempts = latestAttemptsPerPuzzle(prevAllAttempts)
                     prevTotalTime = prevAttempts.sumOf { it.timeMs }
                     prevAccuracy = prevAttempts.count { it.solved }.toFloat() / prevAttempts.size
                 }
@@ -152,28 +160,21 @@ class SuiteRepository @Inject constructor(
         }
     }
 
-    suspend fun getFailedPuzzleIdsForLastCycle(suiteId: Long): List<String> {
-        val cycles = cycleDao.getCyclesForSuite(suiteId)
-        val lastCompleted = cycles.lastOrNull { it.completedAt != null } ?: return emptyList()
-        return cycleDao.getFailedPuzzleIdsForCycle(lastCompleted.id)
+    suspend fun getCurrentlyFailedPuzzleIdsForCycle(cycleId: Long): List<String> {
+        val attempts = cycleDao.getAttemptsForCycle(cycleId)
+        return latestAttemptsPerPuzzle(attempts)
+            .filter { !it.solved }
+            .map { it.puzzleId }
     }
 
     suspend fun getLastCompletedCycleFailedCount(suiteId: Long): Int {
-        return getFailedPuzzleIdsForLastCycle(suiteId).size
+        val cycles = cycleDao.getCyclesForSuite(suiteId)
+        val lastCompleted = cycles.lastOrNull { it.completedAt != null } ?: return 0
+        return getCurrentlyFailedPuzzleIdsForCycle(lastCompleted.id).size
     }
 
     suspend fun getFailedCountForCycle(cycleId: Long): Int {
-        return cycleDao.getFailedPuzzleIdsForCycle(cycleId).size
-    }
-
-    suspend fun reopenCycleForRetry(cycleId: Long) {
-        cycleDao.deleteFailedAttemptsForCycle(cycleId)
-        val cycle = cycleDao.getCycleById(cycleId) ?: return
-        cycleDao.updateCycle(cycle.copy(completedAt = null))
-    }
-
-    suspend fun getAttemptedPuzzleIdsForCycle(cycleId: Long): Set<String> {
-        return cycleDao.getAttemptedPuzzleIdsForCycle(cycleId).toSet()
+        return getCurrentlyFailedPuzzleIdsForCycle(cycleId).size
     }
 
     suspend fun getLastCompletedCycleId(suiteId: Long): Long? {

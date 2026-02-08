@@ -72,8 +72,6 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun startRetryForSuite(suiteId: Long): Long {
-        val cycleId = suiteRepository.getLastCompletedCycleId(suiteId) ?: throw IllegalStateException()
-        suiteRepository.reopenCycleForRetry(cycleId)
-        return cycleId
+        return suiteRepository.getLastCompletedCycleId(suiteId) ?: throw IllegalStateException()
     }
 }

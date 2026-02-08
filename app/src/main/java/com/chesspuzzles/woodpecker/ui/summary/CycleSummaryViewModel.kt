@@ -20,7 +20,8 @@ data class CycleSummaryUiState(
     val allCycleStats: List<Pair<Cycle, CycleStats>> = emptyList(),
     val suiteId: Long = 0,
     val isLoading: Boolean = true,
-    val failedCount: Int = 0
+    val failedCount: Int = 0,
+    val isLatestCycle: Boolean = false
 )
 
 @HiltViewModel
@@ -54,6 +55,7 @@ class CycleSummaryViewModel @Inject constructor(
                     if (cycle != null) {
                         val allCycleStats = suiteRepository.getCycleStatsForAllCycles(suite.id)
                         val failedCount = suiteRepository.getFailedCountForCycle(cycleId)
+                        val latestCompleted = suiteCycles.filter { it.completedAt != null }.maxByOrNull { it.cycleNumber }
                         _uiState.update {
                             it.copy(
                                 cycleNumber = cycle.cycleNumber,
@@ -61,7 +63,8 @@ class CycleSummaryViewModel @Inject constructor(
                                 allCycleStats = allCycleStats,
                                 suiteId = suite.id,
                                 isLoading = false,
-                                failedCount = failedCount
+                                failedCount = failedCount,
+                                isLatestCycle = latestCompleted?.id == cycleId
                             )
                         }
                         return@collect
@@ -74,7 +77,7 @@ class CycleSummaryViewModel @Inject constructor(
     fun startNextCycle(onStarted: (suiteId: Long, cycleId: Long) -> Unit) {
         viewModelScope.launch {
             val suiteId = _uiState.value.suiteId
-            val newCycleId = suiteRepository.startNewCycle(suiteId)
+            val newCycleId = suiteRepository.getOrCreateActiveCycle(suiteId)
             onStarted(suiteId, newCycleId)
         }
     }

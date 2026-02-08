@@ -175,10 +175,10 @@ fun CycleSummaryScreen(
                             .size(20.dp)
                             .padding(end = 4.dp)
                     )
-                    Text(strings.startNextCycle)
+                    Text(if (uiState.isLatestCycle) strings.startNextCycle else strings.continueTraining)
                 }
 
-                if (uiState.failedCount > 0) {
+                if (uiState.failedCount > 0 && uiState.isLatestCycle) {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(
                         onClick = { viewModel.startRetryTraining(onStartRetry) },

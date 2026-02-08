@@ -76,6 +76,7 @@ data class AppStrings(
     val avgTime: String,
     val timePerCycle: String,
     val startNextCycle: String,
+    val continueTraining: String,
 
     // Theme display names
     val themeDisplayNames: Map<PuzzleTheme, String>
@@ -155,6 +156,7 @@ val DeStrings = AppStrings(
     avgTime = "Ø Zeit",
     timePerCycle = "Zeit pro Zyklus",
     startNextCycle = "Nächsten Zyklus starten",
+    continueTraining = "Training fortsetzen",
 
     // Theme display names
     themeDisplayNames = mapOf(
@@ -286,6 +288,7 @@ val EnStrings = AppStrings(
     avgTime = "Avg Time",
     timePerCycle = "Time per Cycle",
     startNextCycle = "Start Next Cycle",
+    continueTraining = "Continue Training",
 
     // Theme display names
     themeDisplayNames = mapOf(

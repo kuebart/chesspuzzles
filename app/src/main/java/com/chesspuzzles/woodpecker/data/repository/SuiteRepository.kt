@@ -64,6 +64,8 @@ class SuiteRepository @Inject constructor(
         cycleDao.getCyclesForSuite(suiteId).map { it.toDomain() }
 
     suspend fun startNewCycle(suiteId: Long): Long {
+        val active = cycleDao.getActiveCycle(suiteId)
+        if (active != null) return active.id
         val maxNumber = cycleDao.getMaxCycleNumber(suiteId) ?: 0
         val cycle = CycleEntity(
             suiteId = suiteId,

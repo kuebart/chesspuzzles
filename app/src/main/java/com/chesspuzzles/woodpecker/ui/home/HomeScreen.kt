@@ -277,7 +277,7 @@ private fun SuiteCard(
                 )
             }
 
-            if (suite.failedPuzzleCount > 0 && (suite.activeCycleProgress == null || suite.activeCycleProgress == 0)) {
+            if (suite.failedPuzzleCount > 0 && suite.activeCycleProgress == null) {
                 OutlinedButton(
                     onClick = onStartRetry,
                     modifier = Modifier

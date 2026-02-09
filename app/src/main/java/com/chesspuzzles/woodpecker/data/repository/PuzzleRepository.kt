@@ -63,8 +63,10 @@ class PuzzleRepository @Inject constructor(
         val allThemeStrings = puzzleDao.getAllThemeStrings()
         val themes = mutableSetOf<PuzzleTheme>()
         for (themeString in allThemeStrings) {
-            themeString.split(",").forEach { key ->
-                PuzzleTheme.fromCsvKey(key.trim())?.let { themes.add(it) }
+            themeString.split(" ", ",").forEach { key ->
+                if (key.isNotBlank()) {
+                    PuzzleTheme.fromCsvKey(key.trim())?.let { themes.add(it) }
+                }
             }
         }
         return themes

@@ -30,7 +30,7 @@ Android SDK is at `C:\android` (non-standard path, set in `local.properties`). N
 
 ## Architecture
 
-MVVM Android app using Jetpack Compose, Hilt DI, Room database. Single activity (`MainActivity`) with Compose Navigation. UI language is German.
+MVVM Android app using Jetpack Compose, Hilt DI, Room database. Single activity (`MainActivity`) with Compose Navigation. Bilingual UI (German/English) with German as default.
 
 **Data flow:** `Room DB` → `Repository` → `ViewModel (StateFlow)` → `Composable Screen`
 
@@ -40,18 +40,32 @@ MVVM Android app using Jetpack Compose, Hilt DI, Room database. Single activity 
 - **data/local/dao/** — `PuzzleDao`, `SuiteDao`, `CycleDao`
 - **data/repository/** — `PuzzleRepository`, `SuiteRepository` (entity ↔ domain mapping happens here)
 - **data/csv/CsvImporter** — Imports `assets/puzzles.csv` (Lichess format) on first launch; skips if DB already has data. To re-import, uninstall the app.
-- **domain/model/** — Domain models (`Puzzle`, `Suite`, `Cycle`, `CycleStats`, `PuzzleTheme` enum with 47 Lichess themes, German display names)
+- **data/preferences/AppPreferences** — SharedPreferences wrapper for app settings (language). Singleton injected via Hilt.
+- **domain/model/** — Domain models (`Puzzle`, `Suite`, `Cycle`, `CycleStats`, `PuzzleTheme` enum with 47 Lichess themes)
 - **di/AppModule** — Hilt singleton module providing Room DB and DAOs
-- **ui/navigation/NavGraph** — Routes: `home`, `create`, `suite/{suiteId}`, `training/{suiteId}/{cycleId}`, `summary/{cycleId}`
+- **ui/navigation/NavGraph** — Routes: `home`, `create`, `settings`, `suite/{suiteId}`, `training/{suiteId}/{cycleId}`, `summary/{cycleId}`
+
+### Localization (`ui/strings/`)
+
+Kotlin-based string system using `CompositionLocal` — no Android resource XML needed.
+
+- **AppStrings.kt** — `data class AppStrings(...)` with all UI strings as properties. `DeStrings` and `EnStrings` instances with full translations. Includes `themeDisplayNames: Map<PuzzleTheme, String>` for localized theme names.
+- **LocalStrings.kt** — `val LocalStrings = staticCompositionLocalOf { DeStrings }`. Access anywhere via `LocalStrings.current.xxx`.
+- **MainActivity.kt** — Reads language from `AppPreferences`, wraps `NavGraph` in `CompositionLocalProvider(LocalStrings provides strings)`. Language change triggers immediate recomposition.
+- **Settings screen** (`ui/settings/`) — `SettingsScreen` + `SettingsViewModel`. Language toggle (Deutsch/English) persisted in SharedPreferences.
+
+When adding new UI strings: add property to `AppStrings`, add values to both `DeStrings` and `EnStrings`, use `LocalStrings.current.xxx` in composables.
 
 ### Theme & Design (`ui/theme/`)
 
 Premium dark chess design with Gold/Amber accent. Dynamic Color is disabled for brand consistency.
 
-- **Color.kt** — Gold/Amber primary, warm dark surfaces, feedback colors (CorrectGreen, WrongRed), chart colors, board colors
+- **Color.kt** — Gold/Amber primary, warm dark surfaces, feedback colors (CorrectGreen, WrongRed), chart colors, board colors, `SuiteColors` palette (8 colors: Gold, Blue, Green, Red, Purple, Cyan, Orange, Pink) for per-suite accent colors
 - **Shape.kt** — Unified RoundedCornerShapes (8dp small, 12dp medium, 16dp large)
 - **Type.kt** — Negative letter-spacing on headlines, all Material 3 text styles defined
 - **Theme.kt** — Full dark/light ColorSchemes, status bar color synced to surface, no dynamic color
+
+Each suite gets a distinct accent color from `SuiteColors` based on `suite.id % SuiteColors.size`. Applied to: left card stripe, start button, progress bar, accuracy text.
 
 ### Chess Board Component (`ui/components/chessboard/`)
 
@@ -65,6 +79,12 @@ Custom Canvas-based chess board — the most complex UI component:
 
 Piece drawables are Lichess cburnett SVGs converted to Android VectorDrawable format in `res/drawable/`. Black pieces require `fillType="evenOdd"` for correct rendering.
 
+### UI Components (`ui/components/`)
+
+- **ThemeChip** — `FilterChip` for puzzle theme selection. Uses `LocalStrings.current.themeDisplayNames` for localized names.
+- **PuzzleProgressBar** — Shows current/total puzzle progress
+- **TimerDisplay** — Running timer display for training sessions
+
 ### Puzzle Solving Flow (TrainingViewModel)
 
 1. Load FEN from puzzle, set position on `BoardState`
@@ -77,6 +97,12 @@ Piece drawables are Lichess cburnett SVGs converted to Android VectorDrawable fo
 8. After last puzzle → complete cycle, navigate to summary
 
 The FEN in the Lichess CSV is the position **before** the opponent's first move. The player always plays the side that moves second.
+
+### Cycle Management
+
+- `SuiteRepository.getOrCreateActiveCycle()` — Returns existing active cycle or creates new one. Always use this instead of `startNewCycle()` to avoid duplicate cycles.
+- `CycleSummaryScreen` — Distinguishes between latest and older cycle summaries. Latest shows "Start Next Cycle" + retry button; older shows "Continue Training" leading to the active cycle.
+- Suite detail screen has a prominent start/continue training button at the top.
 
 ### Puzzle Data
 

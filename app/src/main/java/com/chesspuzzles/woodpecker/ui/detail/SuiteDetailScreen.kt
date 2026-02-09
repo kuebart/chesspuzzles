@@ -235,7 +235,12 @@ fun SuiteDetailScreen(
                         )
                         if (hasActiveCycle) {
                             val active = uiState.cycles.first { it.cycle.completedAt == null }
-                            Text("${strings.continueCycle} (${(active.progress ?: 0) + 1}/${suite.puzzleCount})")
+                            val progress = active.progress ?: 0
+                            if (progress > 0) {
+                                Text("${strings.continueCycle} (${progress + 1}/${suite.puzzleCount})")
+                            } else {
+                                Text(strings.startTraining)
+                            }
                         } else {
                             Text(strings.startTraining)
                         }
@@ -339,7 +344,7 @@ private fun CycleRow(
                 )
                 if (cycle.completedAt == null && progress != null) {
                     Text(
-                        text = "${strings.continueCycle} (${progress + 1}/$totalPuzzles)",
+                        text = if (progress > 0) "${strings.continueCycle} (${progress + 1}/$totalPuzzles)" else strings.startTraining,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

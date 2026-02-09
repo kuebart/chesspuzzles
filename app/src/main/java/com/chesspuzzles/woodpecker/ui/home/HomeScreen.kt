@@ -323,7 +323,7 @@ private fun SuiteCard(
                     modifier = Modifier.padding(end = 4.dp)
                 )
                 if (suite.activeCycleProgress != null && suite.activeCycleProgress > 0) {
-                    Text("${strings.taskProgress} ${suite.activeCycleProgress!! + 1} / ${suite.puzzleCount}")
+                    Text("${strings.continueCycle} (${suite.activeCycleProgress!! + 1}/${suite.puzzleCount})")
                 } else {
                     Text(strings.startTraining)
                 }

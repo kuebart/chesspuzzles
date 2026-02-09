@@ -1,6 +1,5 @@
 package com.chesspuzzles.woodpecker.ui.detail
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,19 +40,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
 import com.chesspuzzles.woodpecker.ui.components.AppBackground
+import com.chesspuzzles.woodpecker.ui.components.CycleLineChart
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
-import com.chesspuzzles.woodpecker.ui.theme.ChartGold
-import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
 import com.chesspuzzles.woodpecker.ui.theme.SuiteColors
 import com.chesspuzzles.woodpecker.util.TimeFormatter
 import kotlinx.coroutines.launch
@@ -207,8 +201,9 @@ fun SuiteDetailScreen(
                 }
 
                 // Progress chart
-                val completedCycles = uiState.cycles.filter { it.stats != null }
-                    .map { Pair(it.cycle, it.stats) }
+                val completedCycles = uiState.cycles
+                    .filter { it.stats != null }
+                    .map { Pair(it.cycle, it.stats!!) }
                 if (completedCycles.size > 1) {
                     item {
                         Text(
@@ -216,11 +211,11 @@ fun SuiteDetailScreen(
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(top = 8.dp)
                         )
-                        ProgressChart(
+                        CycleLineChart(
                             cycleStats = completedCycles,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(150.dp)
+                                .height(170.dp)
                                 .padding(top = 8.dp)
                         )
                     }
@@ -345,60 +340,3 @@ private fun CycleRow(
     }
 }
 
-@Composable
-private fun ProgressChart(
-    cycleStats: List<Pair<Cycle, CycleStats?>>,
-    modifier: Modifier = Modifier
-) {
-    Canvas(modifier = modifier) {
-        val completedStats = cycleStats.mapNotNull { it.second }
-        if (completedStats.size < 2) return@Canvas
-
-        val maxTime = completedStats.maxOf { it.totalTimeMs }.toFloat()
-        val minTime = completedStats.minOf { it.totalTimeMs }.toFloat()
-        val range = (maxTime - minTime).coerceAtLeast(1f)
-
-        val linePath = Path()
-        val fillPath = Path()
-        val stepX = size.width / (completedStats.size - 1).coerceAtLeast(1)
-
-        completedStats.forEachIndexed { index, stats ->
-            val x = index * stepX
-            val y = size.height - ((stats.totalTimeMs - minTime) / range) * size.height * 0.8f - size.height * 0.1f
-
-            if (index == 0) {
-                linePath.moveTo(x, y)
-                fillPath.moveTo(x, size.height)
-                fillPath.lineTo(x, y)
-            } else {
-                linePath.lineTo(x, y)
-                fillPath.lineTo(x, y)
-            }
-
-            // Draw point
-            drawCircle(
-                color = ChartGold,
-                radius = 6f,
-                center = Offset(x, y)
-            )
-        }
-
-        // Close fill path
-        fillPath.lineTo((completedStats.size - 1) * stepX, size.height)
-        fillPath.close()
-
-        // Draw fill
-        drawPath(
-            path = fillPath,
-            color = ChartGoldFill,
-            style = Fill
-        )
-
-        // Draw line
-        drawPath(
-            path = linePath,
-            color = ChartGold,
-            style = Stroke(width = 3f)
-        )
-    }
-}

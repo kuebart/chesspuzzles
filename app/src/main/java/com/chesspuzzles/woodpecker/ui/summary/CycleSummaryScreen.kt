@@ -1,6 +1,5 @@
 package com.chesspuzzles.woodpecker.ui.summary
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,21 +31,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.ui.components.AppBackground
+import com.chesspuzzles.woodpecker.ui.components.CycleLineChart
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
-import com.chesspuzzles.woodpecker.ui.theme.ChartGold
-import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
 import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
 import com.chesspuzzles.woodpecker.ui.theme.WrongRed
 import com.chesspuzzles.woodpecker.util.TimeFormatter
@@ -160,10 +152,10 @@ fun CycleSummaryScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         CycleLineChart(
                             cycleStats = uiState.allCycleStats,
-                            currentCycleId = viewModel.getCycleId(),
+                            highlightCycleId = viewModel.getCycleId(),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(200.dp)
+                                .height(220.dp)
                         )
                     }
                 }
@@ -263,100 +255,3 @@ private fun StatCard(
     }
 }
 
-@Composable
-private fun CycleLineChart(
-    cycleStats: List<Pair<com.chesspuzzles.woodpecker.domain.model.Cycle, com.chesspuzzles.woodpecker.domain.model.CycleStats>>,
-    currentCycleId: Long,
-    modifier: Modifier = Modifier
-) {
-    Canvas(modifier = modifier) {
-        if (cycleStats.size < 2) return@Canvas
-
-        val topPadding = 12f
-        val bottomPadding = 12f
-        val chartHeight = size.height - topPadding - bottomPadding
-        val n = cycleStats.size
-
-        // Time line (gold) — scale
-        val maxTime = cycleStats.maxOf { it.second.totalTimeMs }.toFloat()
-        val minTime = cycleStats.minOf { it.second.totalTimeMs }.toFloat()
-        val timeRange = (maxTime - minTime).coerceAtLeast(1f)
-
-        // Errors line (red) — scale
-        val errors = cycleStats.map { it.second.totalPuzzles - it.second.solvedCount }
-        val maxErrors = errors.max().toFloat()
-        val minErrors = errors.min().toFloat()
-        val errorRange = (maxErrors - minErrors).coerceAtLeast(1f)
-
-        // Compute points
-        val timePoints = mutableListOf<Offset>()
-        val errorPoints = mutableListOf<Offset>()
-
-        cycleStats.forEachIndexed { index, (_, stats) ->
-            val x = if (n == 1) size.width / 2 else index * size.width / (n - 1).toFloat()
-
-            val timeY = topPadding + chartHeight * 0.9f -
-                    ((stats.totalTimeMs - minTime) / timeRange) * chartHeight * 0.8f
-            timePoints.add(Offset(x, timeY))
-
-            val errCount = (stats.totalPuzzles - stats.solvedCount).toFloat()
-            val errorY = topPadding + chartHeight * 0.9f -
-                    ((errCount - minErrors) / errorRange) * chartHeight * 0.8f
-            errorPoints.add(Offset(x, errorY))
-        }
-
-        // Draw time fill
-        val timeFillPath = Path().apply {
-            moveTo(timePoints.first().x, topPadding + chartHeight)
-            timePoints.forEach { lineTo(it.x, it.y) }
-            lineTo(timePoints.last().x, topPadding + chartHeight)
-            close()
-        }
-        drawPath(timeFillPath, color = ChartGoldFill, style = Fill)
-
-        // Draw time line
-        val timeLinePath = Path().apply {
-            timePoints.forEachIndexed { i, p ->
-                if (i == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
-            }
-        }
-        drawPath(
-            timeLinePath,
-            color = ChartGold,
-            style = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-
-        // Draw error fill
-        val errorFillPath = Path().apply {
-            moveTo(errorPoints.first().x, topPadding + chartHeight)
-            errorPoints.forEach { lineTo(it.x, it.y) }
-            lineTo(errorPoints.last().x, topPadding + chartHeight)
-            close()
-        }
-        drawPath(errorFillPath, color = WrongRed.copy(alpha = 0.15f), style = Fill)
-
-        // Draw error line
-        val errorLinePath = Path().apply {
-            errorPoints.forEachIndexed { i, p ->
-                if (i == 0) moveTo(p.x, p.y) else lineTo(p.x, p.y)
-            }
-        }
-        drawPath(
-            errorLinePath,
-            color = WrongRed,
-            style = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        )
-
-        // Draw dots — highlight current cycle
-        cycleStats.forEachIndexed { index, (cycle, _) ->
-            val isCurrent = cycle.id == currentCycleId
-            val radius = if (isCurrent) 7f else 4f
-
-            // Time dot
-            drawCircle(color = ChartGold, radius = radius, center = timePoints[index])
-
-            // Error dot
-            drawCircle(color = WrongRed, radius = radius, center = errorPoints[index])
-        }
-    }
-}

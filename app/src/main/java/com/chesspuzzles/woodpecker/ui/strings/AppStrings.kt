@@ -81,6 +81,8 @@ data class AppStrings(
     val timePerCycle: String,
     val startNextCycle: String,
     val continueTraining: String,
+    val chartLegendTime: String,
+    val chartLegendErrors: String,
 
     // Info dialog
     val infoTitle: String,
@@ -171,6 +173,8 @@ val DeStrings = AppStrings(
     timePerCycle = "Zeit pro Zyklus",
     startNextCycle = "Nächsten Zyklus starten",
     continueTraining = "Training fortsetzen",
+    chartLegendTime = "Zeit",
+    chartLegendErrors = "Fehler",
 
     // Info dialog
     infoTitle = "Willkommen bei Woodpecker",
@@ -313,6 +317,8 @@ val EnStrings = AppStrings(
     timePerCycle = "Time per Cycle",
     startNextCycle = "Start Next Cycle",
     continueTraining = "Continue Training",
+    chartLegendTime = "Time",
+    chartLegendErrors = "Errors",
 
     // Info dialog
     infoTitle = "Welcome to Woodpecker",

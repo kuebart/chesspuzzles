@@ -42,13 +42,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.components.CycleLineChart
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
+import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
 import com.chesspuzzles.woodpecker.ui.theme.SuiteColors
+import com.chesspuzzles.woodpecker.ui.theme.WrongRed
 import com.chesspuzzles.woodpecker.util.TimeFormatter
 import kotlinx.coroutines.launch
 
@@ -272,6 +275,14 @@ fun SuiteDetailScreen(
                                 .padding(top = 8.dp)
                         )
 
+                        // Compute deltas from previous cycle in list
+                        val prevStats = if (selectedIndex > 0) completedCycles[selectedIndex - 1].second else null
+                        val timeDelta = prevStats?.let { selectedStats.totalTimeMs - it.totalTimeMs }
+                        val accuracyDelta = prevStats?.let { selectedStats.accuracy - it.accuracy }
+                        val errorsDelta = prevStats?.let {
+                            (selectedStats.totalPuzzles - selectedStats.solvedCount) - (it.totalPuzzles - it.solvedCount)
+                        }
+
                         // Selected cycle stats
                         Surface(
                             modifier = Modifier
@@ -305,6 +316,14 @@ fun SuiteDetailScreen(
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
+                                    Text(
+                                        text = timeDelta?.let { TimeFormatter.formatDelta(it) } ?: "",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (timeDelta != null && timeDelta < 0) CorrectGreen
+                                               else if (timeDelta != null && timeDelta > 0) WrongRed
+                                               else MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
@@ -317,6 +336,16 @@ fun SuiteDetailScreen(
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
+                                    Text(
+                                        text = accuracyDelta?.let {
+                                            "${if (it >= 0) "+" else ""}${(it * 100).toInt()}%"
+                                        } ?: "",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (accuracyDelta != null && accuracyDelta > 0) CorrectGreen
+                                               else if (accuracyDelta != null && accuracyDelta < 0) WrongRed
+                                               else MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
@@ -328,6 +357,16 @@ fun SuiteDetailScreen(
                                         text = strings.chartLegendErrors,
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = errorsDelta?.let {
+                                            "${if (it >= 0) "+" else ""}$it"
+                                        } ?: "",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (errorsDelta != null && errorsDelta < 0) CorrectGreen
+                                               else if (errorsDelta != null && errorsDelta > 0) WrongRed
+                                               else MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                             }

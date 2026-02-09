@@ -239,7 +239,7 @@ fun SuiteDetailScreen(
                             if (progress > 0) {
                                 Text("${strings.continueCycle} (${progress + 1}/${suite.puzzleCount})")
                             } else {
-                                Text(strings.startTraining)
+                                Text(strings.startCycle)
                             }
                         } else {
                             Text(strings.startTraining)
@@ -344,7 +344,7 @@ private fun CycleRow(
                 )
                 if (cycle.completedAt == null && progress != null) {
                     Text(
-                        text = if (progress > 0) "${strings.continueCycle} (${progress + 1}/$totalPuzzles)" else strings.startTraining,
+                        text = if (progress > 0) "${strings.continueCycle} (${progress + 1}/$totalPuzzles)" else strings.startCycle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

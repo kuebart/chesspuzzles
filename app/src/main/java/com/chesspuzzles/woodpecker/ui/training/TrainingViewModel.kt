@@ -254,7 +254,11 @@ class TrainingViewModel @Inject constructor(
             }
         } else {
             // Wrong move — show it on the board briefly
-            _uiState.update { it.copy(boardEnabled = false) }
+            val autoAdvance = appPreferences.isAutoAdvance()
+            _uiState.update { it.copy(
+                boardEnabled = false,
+                flashColor = if (autoAdvance) WrongRed else null
+            ) }
 
             // Execute the wrong move on the board so the user sees it
             val wrongMoveExecuted = boardState.makeMoveUci(userUci)
@@ -340,13 +344,12 @@ class TrainingViewModel @Inject constructor(
                     result = PuzzleResult.WRONG,
                     showContinueButton = !autoAdvance,
                     wrongCount = it.wrongCount + 1,
-                    moveHistorySize = moveHistory.size,
-                    flashColor = if (autoAdvance) WrongRed else null
+                    moveHistorySize = moveHistory.size
                 )
             }
 
             if (autoAdvance) {
-                delay(1200)
+                delay(400)
                 _uiState.update { it.copy(flashColor = null) }
                 advanceToNext()
             }

@@ -160,36 +160,38 @@ fun CycleSummaryScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                if (uiState.isLatestCycle) {
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Button(
-                    onClick = { viewModel.startNextCycle(onStartNextCycle) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .padding(end = 4.dp)
-                    )
-                    Text(if (uiState.isLatestCycle) strings.startNextCycle else strings.continueTraining)
-                }
-
-                if (uiState.failedCount > 0 && uiState.isLatestCycle) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = { viewModel.startRetryTraining(onStartRetry) },
+                    Button(
+                        onClick = { viewModel.startNextCycle(onStartNextCycle) },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(
-                            Icons.Default.Refresh,
+                            Icons.Default.PlayArrow,
                             contentDescription = null,
                             modifier = Modifier
                                 .size(20.dp)
                                 .padding(end = 4.dp)
                         )
-                        Text("${strings.retryErrors} (${uiState.failedCount})")
+                        Text(strings.startNextCycle)
+                    }
+
+                    if (uiState.failedCount > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { viewModel.startRetryTraining(onStartRetry) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .padding(end = 4.dp)
+                            )
+                            Text("${strings.retryErrors} (${uiState.failedCount})")
+                        }
                     }
                 }
 

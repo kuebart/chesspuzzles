@@ -24,6 +24,7 @@ data class AppStrings(
     val puzzlesSolved: String,
     val trainingDays: String,
     val startTraining: String,
+    val continueCycle: String,
     val retryErrors: String, // "Fehler wiederholen" / "Retry errors"
     val puzzlesCount: String, // "puzzles"
     val ratingLabel: String, // "Rating"
@@ -115,7 +116,8 @@ val DeStrings = AppStrings(
     noSuitesSubtitle = "Erstelle deine erste Puzzle-Suite um mit dem Training zu beginnen",
     puzzlesSolved = "Gelöste Aufgaben",
     trainingDays = "Trainingstage",
-    startTraining = "Training starten",
+    startTraining = "Neuen Zyklus starten",
+    continueCycle = "Zyklus fortsetzen",
     retryErrors = "Fehler wiederholen",
     puzzlesCount = "Aufgaben",
     ratingLabel = "Rating",
@@ -259,7 +261,8 @@ val EnStrings = AppStrings(
     noSuitesSubtitle = "Create your first puzzle suite to start training",
     puzzlesSolved = "Puzzles Solved",
     trainingDays = "Training Days",
-    startTraining = "Start Training",
+    startTraining = "Start New Cycle",
+    continueCycle = "Continue Cycle",
     retryErrors = "Retry errors",
     puzzlesCount = "puzzles",
     ratingLabel = "Rating",

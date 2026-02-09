@@ -193,7 +193,7 @@ fun SuiteDetailScreen(
                         )
                         if (hasActiveCycle) {
                             val active = uiState.cycles.first { it.cycle.completedAt == null }
-                            Text("${strings.taskProgress} ${(active.progress ?: 0) + 1} / ${suite.puzzleCount}")
+                            Text("${strings.continueCycle} (${(active.progress ?: 0) + 1}/${suite.puzzleCount})")
                         } else {
                             Text(strings.startTraining)
                         }

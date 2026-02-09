@@ -1,7 +1,9 @@
 package com.chesspuzzles.woodpecker.ui.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -49,13 +51,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.R
 import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
 import com.chesspuzzles.woodpecker.domain.model.Suite
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
@@ -151,6 +156,14 @@ fun HomeScreen(
             }
         }
     ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(R.drawable.bg_home),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
         if (uiState.isLoading) {
             Column(
                 modifier = Modifier
@@ -224,6 +237,7 @@ fun HomeScreen(
 
                 item { Spacer(modifier = Modifier.height(80.dp)) }
             }
+        }
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.chesspuzzles.woodpecker.ui.detail
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -36,17 +34,17 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.chesspuzzles.woodpecker.domain.model.Cycle
-import com.chesspuzzles.woodpecker.domain.model.CycleStats
 import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.components.CycleLineChart
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
@@ -58,7 +56,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun SuiteDetailScreen(
     onBack: () -> Unit,
-    onCycleClick: (cycleId: Long) -> Unit,
     onContinueCycle: (suiteId: Long, cycleId: Long) -> Unit,
     onStartTraining: (suiteId: Long, cycleId: Long) -> Unit = onContinueCycle,
     viewModel: SuiteDetailViewModel = hiltViewModel()
@@ -247,12 +244,16 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                // Progress chart
+                // Progress chart with cycle stats
                 val completedCycles = uiState.cycles
                     .filter { it.stats != null }
                     .map { Pair(it.cycle, it.stats!!) }
                 if (completedCycles.size > 1) {
                     item {
+                        var selectedIndex by remember { mutableIntStateOf(completedCycles.size - 1) }
+                        val selectedCycle = completedCycles[selectedIndex]
+                        val selectedStats = selectedCycle.second
+
                         Text(
                             text = strings.progress,
                             style = MaterialTheme.typography.titleMedium,
@@ -260,28 +261,79 @@ fun SuiteDetailScreen(
                         )
                         CycleLineChart(
                             cycleStats = completedCycles,
+                            highlightCycleId = selectedCycle.first.id,
+                            onCycleClick = { cycleId ->
+                                val index = completedCycles.indexOfFirst { it.first.id == cycleId }
+                                if (index >= 0) selectedIndex = index
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(170.dp)
                                 .padding(top = 8.dp)
                         )
+
+                        // Selected cycle stats
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${strings.cycle} ${selectedCycle.first.cycleNumber}",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = TimeFormatter.formatMs(selectedStats.totalTimeMs),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = strings.time,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${(selectedStats.accuracy * 100).toInt()}%",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = strings.accuracy,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${selectedStats.totalPuzzles - selectedStats.solvedCount}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = strings.chartLegendErrors,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                     }
-                }
-
-                // Cycles list
-                item {
-                    Text(
-                        text = strings.cycles,
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-
-                val visibleCycles = uiState.cycles.filter { item ->
-                    item.cycle.completedAt != null || (item.progress ?: 0) > 0
-                }
-
-                if (visibleCycles.isEmpty()) {
+                } else if (completedCycles.isEmpty()) {
                     item {
                         Text(
                             text = strings.noCyclesYet,
@@ -292,25 +344,6 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                items(visibleCycles.reversed()) { item ->
-                    val cycle = item.cycle
-                    val stats = item.stats
-                    val progress = item.progress
-                    CycleRow(
-                        cycle = cycle,
-                        stats = stats,
-                        progress = progress,
-                        totalPuzzles = suite.puzzleCount,
-                        onClick = {
-                            if (cycle.completedAt == null) {
-                                onContinueCycle(suite.id, cycle.id)
-                            } else {
-                                onCycleClick(cycle.id)
-                            }
-                        }
-                    )
-                }
-
                 item { Spacer(modifier = Modifier.height(32.dp)) }
             }
         }
@@ -318,76 +351,4 @@ fun SuiteDetailScreen(
     }
 }
 
-@Composable
-private fun CycleRow(
-    cycle: Cycle,
-    stats: CycleStats?,
-    progress: Int?,
-    totalPuzzles: Int,
-    onClick: () -> Unit
-) {
-    val strings = LocalStrings.current
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "${strings.cycle} ${cycle.cycleNumber}",
-                    style = MaterialTheme.typography.titleSmall
-                )
-                if (cycle.completedAt == null && progress != null) {
-                    Text(
-                        text = if (progress > 0) "${strings.continueCycle} (${progress + 1}/$totalPuzzles)" else strings.startCycle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                } else if (stats != null) {
-                    Text(
-                        text = "${(stats.accuracy * 100).toInt()}% ${strings.correct}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            if (stats != null) {
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = TimeFormatter.formatMs(stats.totalTimeMs),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = strings.time,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = "${(stats.accuracy * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Text(
-                            text = strings.accuracy,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 

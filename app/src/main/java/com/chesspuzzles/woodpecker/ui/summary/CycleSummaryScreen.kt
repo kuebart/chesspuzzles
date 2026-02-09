@@ -9,14 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,8 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -84,123 +84,111 @@ fun CycleSummaryScreen(
             }
         } else if (uiState.allCycleStats.isNotEmpty()) {
             val pageCount = uiState.allCycleStats.size
-            val pagerState = rememberPagerState(
-                initialPage = uiState.initialPageIndex,
-                pageCount = { pageCount }
-            )
+            var selectedPage by remember { mutableIntStateOf(uiState.initialPageIndex) }
 
-            HorizontalPager(
-                state = pagerState,
+            val (cycle, stats) = uiState.allCycleStats[selectedPage]
+            val isLatest = selectedPage == pageCount - 1
+            val failedCount = uiState.failedCounts[cycle.id] ?: 0
+
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-            ) { page ->
-                val (cycle, stats) = uiState.allCycleStats[page]
-                val isLatest = page == pageCount - 1
-                val failedCount = uiState.failedCounts[cycle.id] ?: 0
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Text(
+                    text = "${strings.cycle} ${cycle.cycleNumber}",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Main stats cards
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "${strings.cycle} ${cycle.cycleNumber}",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Bold
+                    StatCard(
+                        title = strings.totalTime,
+                        value = TimeFormatter.formatMs(stats.totalTimeMs),
+                        delta = stats.timeDeltaMs?.let { TimeFormatter.formatDelta(it) },
+                        deltaPositive = stats.timeDeltaMs?.let { it < 0 },
+                        modifier = Modifier.weight(1f)
                     )
-
-                    // Page indicator
-                    Text(
-                        text = "${page + 1} / $pageCount",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    StatCard(
+                        title = strings.accuracy,
+                        value = "${(stats.accuracy * 100).toInt()}%",
+                        delta = stats.accuracyDelta?.let {
+                            "${if (it >= 0) "+" else ""}${(it * 100).toInt()}%"
+                        },
+                        deltaPositive = stats.accuracyDelta?.let { it >= 0 },
+                        modifier = Modifier.weight(1f)
                     )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Main stats cards
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        StatCard(
-                            title = strings.totalTime,
-                            value = TimeFormatter.formatMs(stats.totalTimeMs),
-                            delta = stats.timeDeltaMs?.let { TimeFormatter.formatDelta(it) },
-                            deltaPositive = stats.timeDeltaMs?.let { it < 0 },
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatCard(
-                            title = strings.accuracy,
-                            value = "${(stats.accuracy * 100).toInt()}%",
-                            delta = stats.accuracyDelta?.let {
-                                "${if (it >= 0) "+" else ""}${(it * 100).toInt()}%"
-                            },
-                            deltaPositive = stats.accuracyDelta?.let { it >= 0 },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        StatCard(
-                            title = strings.solved,
-                            value = "${stats.solvedCount} / ${stats.totalPuzzles}",
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatCard(
-                            title = strings.avgTime,
-                            value = TimeFormatter.formatMsShort(stats.averageTimeMs),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    // Cycle comparison chart
-                    if (uiState.allCycleStats.size > 1) {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            text = strings.timePerCycle,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        CycleLineChart(
-                            cycleStats = uiState.allCycleStats,
-                            highlightCycleId = cycle.id,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(220.dp)
-                        )
-                    }
-
-                    // Retry button only for latest cycle with errors
-                    if (isLatest && failedCount > 0) {
-                        Spacer(modifier = Modifier.height(32.dp))
-                        OutlinedButton(
-                            onClick = { viewModel.startRetryTraining(onStartRetry) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                Icons.Default.Refresh,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .padding(end = 4.dp)
-                            )
-                            Text("${strings.retryErrors} ($failedCount)")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        title = strings.solved,
+                        value = "${stats.solvedCount} / ${stats.totalPuzzles}",
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = strings.avgTime,
+                        value = TimeFormatter.formatMsShort(stats.averageTimeMs),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Cycle comparison chart
+                if (uiState.allCycleStats.size > 1) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = strings.timePerCycle,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CycleLineChart(
+                        cycleStats = uiState.allCycleStats,
+                        highlightCycleId = cycle.id,
+                        onCycleClick = { cycleId ->
+                            val index = uiState.allCycleStats.indexOfFirst { it.first.id == cycleId }
+                            if (index >= 0) selectedPage = index
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                    )
+                }
+
+                // Retry button only for latest cycle with errors
+                if (isLatest && failedCount > 0) {
+                    Spacer(modifier = Modifier.height(32.dp))
+                    OutlinedButton(
+                        onClick = { viewModel.startRetryTraining(onStartRetry) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(end = 4.dp)
+                        )
+                        Text("${strings.retryErrors} ($failedCount)")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
         }

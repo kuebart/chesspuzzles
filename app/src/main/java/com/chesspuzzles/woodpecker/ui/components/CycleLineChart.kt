@@ -1,6 +1,7 @@
 package com.chesspuzzles.woodpecker.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -23,6 +26,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
@@ -30,18 +34,38 @@ import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
 import com.chesspuzzles.woodpecker.ui.theme.WrongRed
+import kotlin.math.abs
 
 @Composable
 fun CycleLineChart(
     cycleStats: List<Pair<Cycle, CycleStats>>,
     modifier: Modifier = Modifier,
-    highlightCycleId: Long? = null
+    highlightCycleId: Long? = null,
+    onCycleClick: ((Long) -> Unit)? = null
 ) {
+    // Store x positions for tap detection
+    val xPositions = remember { mutableStateOf(listOf<Float>()) }
+
     Column(modifier = modifier) {
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                .then(
+                    if (onCycleClick != null && cycleStats.size >= 2) {
+                        Modifier.pointerInput(cycleStats) {
+                            detectTapGestures { offset ->
+                                val positions = xPositions.value
+                                if (positions.isNotEmpty()) {
+                                    val closestIndex = positions.indices.minByOrNull {
+                                        abs(positions[it] - offset.x)
+                                    } ?: return@detectTapGestures
+                                    onCycleClick(cycleStats[closestIndex].first.id)
+                                }
+                            }
+                        }
+                    } else Modifier
+                )
         ) {
             if (cycleStats.size < 2) return@Canvas
 
@@ -77,6 +101,9 @@ fun CycleLineChart(
                         ((errCount - minErrors) / errorRange) * chartHeight * 0.8f
                 errorPoints.add(Offset(x, errorY))
             }
+
+            // Store x positions for tap detection
+            xPositions.value = timePoints.map { it.x }
 
             // Draw time fill
             val timeFillPath = Path().apply {
@@ -120,9 +147,13 @@ fun CycleLineChart(
                 style = Stroke(width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
             )
 
+            // Highlight index
+            val highlightIndex = if (highlightCycleId != null) {
+                cycleStats.indexOfFirst { it.first.id == highlightCycleId }
+            } else -1
+
             // Vertical line for highlighted cycle
             if (highlightCycleId != null) {
-                val highlightIndex = cycleStats.indexOfFirst { it.first.id == highlightCycleId }
                 if (highlightIndex >= 0) {
                     val x = timePoints[highlightIndex].x
                     drawLine(
@@ -137,8 +168,10 @@ fun CycleLineChart(
 
             // Draw dots
             cycleStats.forEachIndexed { index, _ ->
-                drawCircle(color = ChartGold, radius = 4f, center = timePoints[index])
-                drawCircle(color = WrongRed, radius = 4f, center = errorPoints[index])
+                val isHighlighted = index == highlightIndex
+                val radius = if (isHighlighted) 7f else 4f
+                drawCircle(color = ChartGold, radius = radius, center = timePoints[index])
+                drawCircle(color = WrongRed, radius = radius, center = errorPoints[index])
             }
         }
 

@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.compose.rememberNavController
 import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
@@ -28,7 +29,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var language by mutableStateOf(appPreferences.getLanguage())
+            var language by remember { mutableStateOf(appPreferences.getLanguage()) }
             val strings = if (language == "en") EnStrings else DeStrings
 
             WoodpeckerTheme {

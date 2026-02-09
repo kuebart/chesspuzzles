@@ -40,6 +40,7 @@ data class AppStrings(
     val puzzleCount: String,
     val matchingPuzzlesAvailable: String, // "{count} matching puzzles available"
     val createSuiteButton: String,
+    val noPuzzlesFound: String,
 
     // SuiteDetailScreen
     val deleteSuiteTitle: String,
@@ -120,6 +121,7 @@ val DeStrings = AppStrings(
     puzzleCount = "Aufgabenanzahl",
     matchingPuzzlesAvailable = "passende Aufgaben verfügbar",
     createSuiteButton = "Suite erstellen",
+    noPuzzlesFound = "Keine passenden Aufgaben gefunden",
 
     // SuiteDetailScreen
     deleteSuiteTitle = "Suite löschen",
@@ -252,6 +254,7 @@ val EnStrings = AppStrings(
     puzzleCount = "Puzzle Count",
     matchingPuzzlesAvailable = "matching puzzles available",
     createSuiteButton = "Create Suite",
+    noPuzzlesFound = "No puzzles found matching criteria",
 
     // SuiteDetailScreen
     deleteSuiteTitle = "Delete Suite",

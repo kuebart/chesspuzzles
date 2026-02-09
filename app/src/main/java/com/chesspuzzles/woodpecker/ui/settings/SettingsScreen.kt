@@ -110,7 +110,7 @@ private fun LanguageOption(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = selected, onClick = onClick)
+        RadioButton(selected = selected, onClick = null)
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,

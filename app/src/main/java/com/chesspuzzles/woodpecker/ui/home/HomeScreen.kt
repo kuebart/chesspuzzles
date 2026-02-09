@@ -166,7 +166,7 @@ fun HomeScreen(
                         },
                         onStartRetry = {
                             scope.launch {
-                                val cycleId = viewModel.startRetryForSuite(suite.id)
+                                val cycleId = viewModel.startRetryForSuite(suite.id) ?: return@launch
                                 onStartRetry(suite.id, cycleId)
                             }
                         }

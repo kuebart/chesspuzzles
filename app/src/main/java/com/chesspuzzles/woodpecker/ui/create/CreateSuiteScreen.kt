@@ -208,6 +208,14 @@ fun CreateSuiteScreen(
                 }
             )
 
+            if (uiState.noPuzzlesFound) {
+                Text(
+                    text = strings.noPuzzlesFound,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             uiState.error?.let { error ->
                 Text(
                     text = error,

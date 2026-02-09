@@ -263,7 +263,7 @@ class TrainingViewModel @Inject constructor(
                     result = PuzzleResult.CORRECT,
                     showContinueButton = true,
                     correctCount = it.correctCount + 1,
-                    wrongCount = if (retry) it.wrongCount - 1 else it.wrongCount
+                    wrongCount = if (retry) (it.wrongCount - 1).coerceAtLeast(0) else it.wrongCount
                 )
             }
         }

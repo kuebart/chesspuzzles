@@ -23,7 +23,8 @@ data class CreateSuiteUiState(
     val puzzleCount: Int = 200,
     val matchingPuzzleCount: Int = 0,
     val isCreating: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val noPuzzlesFound: Boolean = false
 )
 
 @HiltViewModel
@@ -88,7 +89,7 @@ class CreateSuiteViewModel @Inject constructor(
     fun createSuite(onSuccess: (Long) -> Unit) {
         val state = _uiState.value
 
-        _uiState.update { it.copy(isCreating = true, error = null) }
+        _uiState.update { it.copy(isCreating = true, error = null, noPuzzlesFound = false) }
 
         viewModelScope.launch {
             try {
@@ -102,7 +103,7 @@ class CreateSuiteViewModel @Inject constructor(
                 )
 
                 if (puzzles.isEmpty()) {
-                    _uiState.update { it.copy(isCreating = false, error = "No puzzles found matching criteria") }
+                    _uiState.update { it.copy(isCreating = false, noPuzzlesFound = true) }
                     return@launch
                 }
 

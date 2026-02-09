@@ -71,7 +71,7 @@ class HomeViewModel @Inject constructor(
         return suiteRepository.getOrCreateActiveCycle(suiteId)
     }
 
-    suspend fun startRetryForSuite(suiteId: Long): Long {
-        return suiteRepository.getLastCompletedCycleId(suiteId) ?: throw IllegalStateException()
+    suspend fun startRetryForSuite(suiteId: Long): Long? {
+        return suiteRepository.getLastCompletedCycleId(suiteId)
     }
 }

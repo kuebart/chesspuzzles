@@ -41,7 +41,7 @@ interface CycleDao {
     @Query("SELECT * FROM puzzle_attempts WHERE cycleId = :cycleId ORDER BY attemptedAt ASC")
     fun observeAttemptsForCycle(cycleId: Long): Flow<List<PuzzleAttemptEntity>>
 
-    @Query("SELECT COUNT(*) FROM puzzle_attempts WHERE cycleId = :cycleId")
+    @Query("SELECT COUNT(DISTINCT puzzleId) FROM puzzle_attempts WHERE cycleId = :cycleId")
     suspend fun getAttemptCountForCycle(cycleId: Long): Int
 
     @Query("SELECT COUNT(*) FROM puzzle_attempts WHERE cycleId = :cycleId AND solved = 1")

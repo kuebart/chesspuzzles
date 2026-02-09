@@ -172,14 +172,14 @@ fun SuiteDetailScreen(
                 }
 
                 // Start Training button
-                val hasActiveCycle = uiState.cycles.any { it.first.completedAt == null }
+                val hasActiveCycle = uiState.cycles.any { it.cycle.completedAt == null }
                 val suiteAccentColor = SuiteColors[(suite.id % SuiteColors.size).toInt()]
                 item {
                     Button(
                         onClick = {
                             if (hasActiveCycle) {
-                                val active = uiState.cycles.first { it.first.completedAt == null }
-                                onContinueCycle(suite.id, active.first.id)
+                                val active = uiState.cycles.first { it.cycle.completedAt == null }
+                                onContinueCycle(suite.id, active.cycle.id)
                             } else {
                                 scope.launch {
                                     val cycleId = viewModel.getOrCreateCycle()
@@ -196,8 +196,8 @@ fun SuiteDetailScreen(
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         if (hasActiveCycle) {
-                            val active = uiState.cycles.first { it.first.completedAt == null }
-                            Text("${strings.taskProgress} ${(active.third ?: 0) + 1} / ${suite.puzzleCount}")
+                            val active = uiState.cycles.first { it.cycle.completedAt == null }
+                            Text("${strings.taskProgress} ${(active.progress ?: 0) + 1} / ${suite.puzzleCount}")
                         } else {
                             Text(strings.startTraining)
                         }
@@ -205,8 +205,8 @@ fun SuiteDetailScreen(
                 }
 
                 // Progress chart
-                val completedCycles = uiState.cycles.filter { it.second != null }
-                    .map { Pair(it.first, it.second) }
+                val completedCycles = uiState.cycles.filter { it.stats != null }
+                    .map { Pair(it.cycle, it.stats) }
                 if (completedCycles.size > 1) {
                     item {
                         Text(
@@ -244,7 +244,10 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                items(uiState.cycles.reversed()) { (cycle, stats, progress) ->
+                items(uiState.cycles.reversed()) { item ->
+                    val cycle = item.cycle
+                    val stats = item.stats
+                    val progress = item.progress
                     CycleRow(
                         cycle = cycle,
                         stats = stats,

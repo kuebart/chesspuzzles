@@ -37,7 +37,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavGraph(
                         navController = navController,
-                        onLanguageChanged = { lang -> language = lang }
+                        onLanguageChanged = { lang -> language = lang },
+                        appPreferences = appPreferences
                     )
                 }
             }

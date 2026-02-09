@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
 import com.chesspuzzles.woodpecker.ui.create.CreateSuiteScreen
 
 import com.chesspuzzles.woodpecker.ui.detail.SuiteDetailScreen
@@ -31,7 +32,8 @@ object Routes {
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    onLanguageChanged: (String) -> Unit
+    onLanguageChanged: (String) -> Unit,
+    appPreferences: AppPreferences
 ) {
     NavHost(
         navController = navController,
@@ -47,7 +49,8 @@ fun NavGraph(
                 onStartRetry = { suiteId, cycleId ->
                     navController.navigate(Routes.training(suiteId, cycleId, retry = true))
                 },
-                onOpenSettings = { navController.navigate(Routes.SETTINGS) }
+                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                appPreferences = appPreferences
             )
         }
 

@@ -79,6 +79,12 @@ data class AppStrings(
     val startNextCycle: String,
     val continueTraining: String,
 
+    // Info dialog
+    val infoTitle: String,
+    val infoText: String,
+    val infoDismiss: String,
+    val infoDoNotShowAgain: String,
+
     // Theme display names
     val themeDisplayNames: Map<PuzzleTheme, String>
 )
@@ -159,6 +165,12 @@ val DeStrings = AppStrings(
     timePerCycle = "Zeit pro Zyklus",
     startNextCycle = "Nächsten Zyklus starten",
     continueTraining = "Training fortsetzen",
+
+    // Info dialog
+    infoTitle = "Willkommen bei Woodpecker",
+    infoText = "Diese App nutzt die Woodpecker-Methode: Löse die gleichen Schachaufgaben in mehreren Zyklen und werde dabei schneller und genauer.\n\nErstelle eine Suite mit Aufgaben, die zu deinem Level passen, und trainiere sie wiederholt — so verankerst du taktische Muster im Langzeitgedächtnis.",
+    infoDismiss = "Verstanden",
+    infoDoNotShowAgain = "Nicht mehr anzeigen",
 
     // Theme display names
     themeDisplayNames = mapOf(
@@ -292,6 +304,12 @@ val EnStrings = AppStrings(
     timePerCycle = "Time per Cycle",
     startNextCycle = "Start Next Cycle",
     continueTraining = "Continue Training",
+
+    // Info dialog
+    infoTitle = "Welcome to Woodpecker",
+    infoText = "This app uses the Woodpecker Method: Solve the same chess puzzles across multiple cycles, getting faster and more accurate each time.\n\nCreate a suite with puzzles that match your level and train them repeatedly — this anchors tactical patterns in your long-term memory.",
+    infoDismiss = "Got it",
+    infoDoNotShowAgain = "Don't show again",
 
     // Theme display names
     themeDisplayNames = mapOf(

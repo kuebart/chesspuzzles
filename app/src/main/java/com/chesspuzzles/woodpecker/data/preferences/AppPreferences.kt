@@ -19,7 +19,14 @@ class AppPreferences @Inject constructor(
         prefs.edit().putString(KEY_LANGUAGE, lang).apply()
     }
 
+    fun shouldShowInfoBox(): Boolean = prefs.getBoolean(KEY_SHOW_INFO_BOX, true)
+
+    fun setInfoBoxDismissed() {
+        prefs.edit().putBoolean(KEY_SHOW_INFO_BOX, false).apply()
+    }
+
     companion object {
         private const val KEY_LANGUAGE = "language"
+        private const val KEY_SHOW_INFO_BOX = "show_info_box"
     }
 }

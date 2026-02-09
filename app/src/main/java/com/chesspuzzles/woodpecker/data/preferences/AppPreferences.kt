@@ -37,10 +37,21 @@ class AppPreferences @Inject constructor(
         prefs.edit().putBoolean(KEY_AUTO_ADVANCE, enabled).apply()
     }
 
+    fun getSuiteSortOrder(): String = prefs.getString(KEY_SUITE_SORT, SORT_LAST_ACCESS) ?: SORT_LAST_ACCESS
+
+    fun setSuiteSortOrder(sort: String) {
+        prefs.edit().putString(KEY_SUITE_SORT, sort).apply()
+    }
+
     companion object {
         private const val KEY_LANGUAGE = "language"
         private const val KEY_SHOW_INFO_BOX = "show_info_box"
         private const val KEY_SOUND_ENABLED = "sound_enabled"
         private const val KEY_AUTO_ADVANCE = "auto_advance"
+        private const val KEY_SUITE_SORT = "suite_sort"
+
+        const val SORT_LAST_ACCESS = "last_access"
+        const val SORT_NAME = "name"
+        const val SORT_CREATED = "created"
     }
 }

@@ -32,6 +32,9 @@ data class AppStrings(
     val cyclesCompleted: String, // "cycles completed"
     val lastAccuracy: String, // "Last:"
     val taskProgress: String, // "Aufgabe" / "Puzzle"
+    val sortByLastAccess: String,
+    val sortByName: String,
+    val sortByCreated: String,
 
     // CreateSuiteScreen
     val createSuiteTitle: String,
@@ -128,6 +131,9 @@ val DeStrings = AppStrings(
     cyclesCompleted = "Zyklen abgeschlossen",
     lastAccuracy = "Letzter:",
     taskProgress = "Aufgabe",
+    sortByLastAccess = "Zuletzt geöffnet",
+    sortByName = "Name",
+    sortByCreated = "Erstelldatum",
 
     // CreateSuiteScreen
     createSuiteTitle = "Suite erstellen",
@@ -276,6 +282,9 @@ val EnStrings = AppStrings(
     cyclesCompleted = "cycles completed",
     lastAccuracy = "Last:",
     taskProgress = "Puzzle",
+    sortByLastAccess = "Last opened",
+    sortByName = "Name",
+    sortByCreated = "Created",
 
     // CreateSuiteScreen
     createSuiteTitle = "Create Suite",

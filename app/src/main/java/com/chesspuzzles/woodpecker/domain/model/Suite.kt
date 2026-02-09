@@ -8,6 +8,7 @@ data class Suite(
     val ratingMin: Int,
     val ratingMax: Int,
     val puzzleCount: Int,
+    val lastAccessedAt: Long = 0,
     val cycleCount: Int = 0,
     val lastCycleAccuracy: Float? = null,
     val activeCycleProgress: Int? = null,

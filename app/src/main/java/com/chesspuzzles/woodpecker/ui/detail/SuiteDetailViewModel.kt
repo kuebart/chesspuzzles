@@ -35,6 +35,12 @@ class SuiteDetailViewModel @Inject constructor(
 
     private val suiteId: Long = savedStateHandle["suiteId"]!!
 
+    init {
+        viewModelScope.launch {
+            suiteRepository.touchSuiteAccess(suiteId)
+        }
+    }
+
     val uiState: StateFlow<SuiteDetailUiState> = combine(
         suiteRepository.observeSuiteById(suiteId),
         suiteRepository.observeCyclesForSuite(suiteId)

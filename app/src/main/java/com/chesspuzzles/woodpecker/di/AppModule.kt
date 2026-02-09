@@ -25,7 +25,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "woodpecker.db"
-        ).build()
+        ).addMigrations(AppDatabase.MIGRATION_1_2).build()
     }
 
     @Provides

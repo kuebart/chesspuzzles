@@ -59,6 +59,10 @@ class SuiteRepository @Inject constructor(
         suiteDao.updateSuiteName(suiteId, name)
     }
 
+    suspend fun touchSuiteAccess(suiteId: Long) {
+        suiteDao.updateLastAccessedAt(suiteId, System.currentTimeMillis())
+    }
+
     fun observeCyclesForSuite(suiteId: Long): Flow<List<Cycle>> =
         cycleDao.observeCyclesForSuite(suiteId).map { cycles ->
             cycles.map { it.toDomain() }
@@ -203,7 +207,8 @@ class SuiteRepository @Inject constructor(
         themes = themes.split(",").filter { it.isNotBlank() }.mapNotNull { PuzzleTheme.fromCsvKey(it.trim()) },
         ratingMin = ratingMin,
         ratingMax = ratingMax,
-        puzzleCount = puzzleCount
+        puzzleCount = puzzleCount,
+        lastAccessedAt = lastAccessedAt
     )
 
     private fun CycleEntity.toDomain() = Cycle(

@@ -32,6 +32,9 @@ interface SuiteDao {
     @Query("UPDATE suites SET name = :name WHERE id = :suiteId")
     suspend fun updateSuiteName(suiteId: Long, name: String)
 
+    @Query("UPDATE suites SET lastAccessedAt = :timestamp WHERE id = :suiteId")
+    suspend fun updateLastAccessedAt(suiteId: Long, timestamp: Long)
+
     @Query("SELECT COUNT(*) FROM suites")
     fun observeSuiteCount(): Flow<Int>
 

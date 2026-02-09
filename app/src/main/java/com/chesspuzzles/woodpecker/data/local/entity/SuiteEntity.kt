@@ -11,5 +11,6 @@ data class SuiteEntity(
     val themes: String,
     val ratingMin: Int,
     val ratingMax: Int,
-    val puzzleCount: Int
+    val puzzleCount: Int,
+    val lastAccessedAt: Long = 0
 )

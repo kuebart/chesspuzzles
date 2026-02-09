@@ -111,7 +111,11 @@ class TrainingViewModel @Inject constructor(
                 suiteRepository.getAccumulatedTimeForCycle(cycleId)
             } else 0L
 
-            val (initialCorrect, initialWrong) = suiteRepository.getCycleProgress(cycleId)
+            val (initialCorrect, initialWrong) = if (retry) {
+                Pair(0, 0)
+            } else {
+                suiteRepository.getCycleProgress(cycleId)
+            }
 
             _uiState.update {
                 it.copy(
@@ -264,12 +268,14 @@ class TrainingViewModel @Inject constructor(
         val puzzle = puzzles[_uiState.value.currentPuzzleIndex]
 
         viewModelScope.launch {
-            suiteRepository.saveAttempt(
-                cycleId = cycleId,
-                puzzleId = puzzle.id,
-                solved = true,
-                timeMs = timeMs
-            )
+            if (!retry) {
+                suiteRepository.saveAttempt(
+                    cycleId = cycleId,
+                    puzzleId = puzzle.id,
+                    solved = true,
+                    timeMs = timeMs
+                )
+            }
 
             pauseTimer()
 
@@ -278,8 +284,7 @@ class TrainingViewModel @Inject constructor(
                     boardEnabled = false,
                     result = PuzzleResult.CORRECT,
                     showContinueButton = true,
-                    correctCount = it.correctCount + 1,
-                    wrongCount = if (retry) (it.wrongCount - 1).coerceAtLeast(0) else it.wrongCount
+                    correctCount = it.correctCount + 1
                 )
             }
         }
@@ -290,12 +295,14 @@ class TrainingViewModel @Inject constructor(
         val puzzle = puzzles[_uiState.value.currentPuzzleIndex]
 
         viewModelScope.launch {
-            suiteRepository.saveAttempt(
-                cycleId = cycleId,
-                puzzleId = puzzle.id,
-                solved = false,
-                timeMs = timeMs
-            )
+            if (!retry) {
+                suiteRepository.saveAttempt(
+                    cycleId = cycleId,
+                    puzzleId = puzzle.id,
+                    solved = false,
+                    timeMs = timeMs
+                )
+            }
 
             // Append remaining solution moves to history
             val remainingMoves = puzzle.moves.subList(currentMoveIndex, puzzle.moves.size)
@@ -308,7 +315,7 @@ class TrainingViewModel @Inject constructor(
                     boardEnabled = false,
                     result = PuzzleResult.WRONG,
                     showContinueButton = true,
-                    wrongCount = if (retry) it.wrongCount else it.wrongCount + 1,
+                    wrongCount = it.wrongCount + 1,
                     moveHistorySize = moveHistory.size
                     // moveHistoryIndex stays where it is — user can navigate forward to see solution
                 )

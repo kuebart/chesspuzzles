@@ -238,8 +238,29 @@ class TrainingViewModel @Inject constructor(
                 }
             }
         } else {
-            // Wrong move
-            onPuzzleFailed()
+            // Wrong move — show it on the board briefly, then correct
+            _uiState.update { it.copy(boardEnabled = false) }
+
+            // Execute the wrong move on the board so the user sees it
+            val wrongMoveExecuted = boardState.makeMoveUci(userUci)
+            if (wrongMoveExecuted) {
+                boardState.setWrongMove(fromSquare, toSquare)
+            }
+
+            viewModelScope.launch {
+                delay(800)
+
+                // Undo the wrong move by reconstructing the board
+                boardState.clearWrongMove()
+                reconstructBoard(moveHistory.size)
+
+                delay(400)
+
+                // Show the correct move
+                boardState.makeMoveUci(expectedMove)
+
+                onPuzzleFailed()
+            }
         }
     }
 

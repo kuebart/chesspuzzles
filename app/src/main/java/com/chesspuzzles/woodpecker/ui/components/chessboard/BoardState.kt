@@ -35,6 +35,12 @@ class BoardState {
     var boardVersion: Int by mutableIntStateOf(0)
         private set
 
+    var wrongMoveFrom: Square? by mutableStateOf(null)
+        private set
+
+    var wrongMoveTo: Square? by mutableStateOf(null)
+        private set
+
     var animatingPiece: Piece? by mutableStateOf(null)
         private set
 
@@ -51,6 +57,8 @@ class BoardState {
         legalMovesFromSelected = emptyList()
         lastMoveFrom = null
         lastMoveTo = null
+        wrongMoveFrom = null
+        wrongMoveTo = null
         animatingPiece = null
         animateFromSquare = null
         animateToSquare = null
@@ -113,6 +121,16 @@ class BoardState {
 
         makeMove(legalMove)
         return true
+    }
+
+    fun setWrongMove(from: Square, to: Square) {
+        wrongMoveFrom = from
+        wrongMoveTo = to
+    }
+
+    fun clearWrongMove() {
+        wrongMoveFrom = null
+        wrongMoveTo = null
     }
 
     fun setAnimatingMove(from: Square, to: Square, piece: Piece) {

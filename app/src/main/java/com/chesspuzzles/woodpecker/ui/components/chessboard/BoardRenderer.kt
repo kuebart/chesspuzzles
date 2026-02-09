@@ -18,6 +18,7 @@ object BoardRenderer {
     val selectedColor = Color(0x8014551E)
     val lastMoveColor = Color(0x50FFA000)
     val legalMoveColor = Color(0x40000000)
+    val wrongMoveColor = Color(0x60EF5350)
     val checkColor = Color(0xCCFF0000)
 
     fun DrawScope.drawBoard(
@@ -26,6 +27,8 @@ object BoardRenderer {
         selectedSquare: Square?,
         lastMoveFrom: Square?,
         lastMoveTo: Square?,
+        wrongMoveFrom: Square? = null,
+        wrongMoveTo: Square? = null,
         legalMoveSquares: List<Square>,
         checkSquare: Square?,
         textMeasurer: TextMeasurer? = null,
@@ -59,6 +62,15 @@ object BoardRenderer {
                 if (square == lastMoveFrom || square == lastMoveTo) {
                     drawRect(
                         color = lastMoveColor,
+                        topLeft = Offset(x, y),
+                        size = Size(squareSize, squareSize)
+                    )
+                }
+
+                // Wrong move highlight (overrides last move)
+                if (square == wrongMoveFrom || square == wrongMoveTo) {
+                    drawRect(
+                        color = wrongMoveColor,
                         topLeft = Offset(x, y),
                         size = Size(squareSize, squareSize)
                     )

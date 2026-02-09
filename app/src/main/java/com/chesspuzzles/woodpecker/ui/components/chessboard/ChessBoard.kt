@@ -168,6 +168,8 @@ fun ChessBoard(
                     selectedSquare = boardState.selectedSquare,
                     lastMoveFrom = boardState.lastMoveFrom,
                     lastMoveTo = boardState.lastMoveTo,
+                    wrongMoveFrom = boardState.wrongMoveFrom,
+                    wrongMoveTo = boardState.wrongMoveTo,
                     legalMoveSquares = if (enabled) legalMoveSquares else emptyList(),
                     checkSquare = checkSquare,
                     textMeasurer = textMeasurer,

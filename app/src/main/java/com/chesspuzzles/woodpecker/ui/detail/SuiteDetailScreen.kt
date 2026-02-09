@@ -277,7 +277,11 @@ fun SuiteDetailScreen(
                     )
                 }
 
-                if (uiState.cycles.isEmpty()) {
+                val visibleCycles = uiState.cycles.filter { item ->
+                    item.cycle.completedAt != null || (item.progress ?: 0) > 0
+                }
+
+                if (visibleCycles.isEmpty()) {
                     item {
                         Text(
                             text = strings.noCyclesYet,
@@ -288,7 +292,7 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                items(uiState.cycles.reversed()) { item ->
+                items(visibleCycles.reversed()) { item ->
                     val cycle = item.cycle
                     val stats = item.stats
                     val progress = item.progress

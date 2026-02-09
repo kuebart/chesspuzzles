@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.PuzzleTheme
+import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.components.ThemeChip
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 
@@ -63,6 +64,7 @@ fun CreateSuiteScreen(
             )
         }
     ) { padding ->
+        AppBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -238,6 +240,7 @@ fun CreateSuiteScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+        }
         }
     }
 }

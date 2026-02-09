@@ -50,6 +50,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
+import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
 import com.chesspuzzles.woodpecker.ui.theme.ChartGoldFill
@@ -113,6 +114,7 @@ fun SuiteDetailScreen(
             )
         }
     ) { padding ->
+        AppBackground {
         if (uiState.isLoading) {
             Column(
                 modifier = Modifier
@@ -124,7 +126,7 @@ fun SuiteDetailScreen(
                 CircularProgressIndicator()
             }
         } else {
-            val suite = uiState.suite ?: return@Scaffold
+            val suite = uiState.suite ?: return@AppBackground
 
             LazyColumn(
                 modifier = Modifier
@@ -265,6 +267,7 @@ fun SuiteDetailScreen(
 
                 item { Spacer(modifier = Modifier.height(32.dp)) }
             }
+        }
         }
     }
 }

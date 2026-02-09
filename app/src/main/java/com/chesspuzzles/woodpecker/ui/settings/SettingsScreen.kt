@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,41 +57,43 @@ fun SettingsScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = strings.languageLabel,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surfaceContainerHigh
+        AppBackground {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column {
-                    LanguageOption(
-                        label = "Deutsch",
-                        selected = language == "de",
-                        onClick = {
-                            viewModel.setLanguage("de")
-                            onLanguageChanged("de")
-                        }
-                    )
-                    LanguageOption(
-                        label = "English",
-                        selected = language == "en",
-                        onClick = {
-                            viewModel.setLanguage("en")
-                            onLanguageChanged("en")
-                        }
-                    )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = strings.languageLabel,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Column {
+                        LanguageOption(
+                            label = "Deutsch",
+                            selected = language == "de",
+                            onClick = {
+                                viewModel.setLanguage("de")
+                                onLanguageChanged("de")
+                            }
+                        )
+                        LanguageOption(
+                            label = "English",
+                            selected = language == "en",
+                            onClick = {
+                                viewModel.setLanguage("en")
+                                onLanguageChanged("en")
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.components.PuzzleProgressBar
 import com.chesspuzzles.woodpecker.ui.components.TimerDisplay
 import com.chesspuzzles.woodpecker.ui.components.chessboard.ChessBoard
@@ -76,6 +77,7 @@ fun TrainingScreen(
             )
         }
     ) { padding ->
+        AppBackground {
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier
@@ -329,6 +331,7 @@ fun TrainingScreen(
                     }
                 }
             }
+        }
         }
     }
 }

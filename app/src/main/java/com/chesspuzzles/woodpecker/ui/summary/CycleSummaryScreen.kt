@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.ChartBarDefault
 import com.chesspuzzles.woodpecker.ui.theme.ChartGold
@@ -74,6 +75,7 @@ fun CycleSummaryScreen(
             )
         }
     ) { padding ->
+        AppBackground {
         if (uiState.isLoading) {
             Column(
                 modifier = Modifier
@@ -197,6 +199,7 @@ fun CycleSummaryScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
             }
+        }
         }
     }
 }

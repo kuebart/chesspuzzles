@@ -238,7 +238,7 @@ class TrainingViewModel @Inject constructor(
                 }
             }
         } else {
-            // Wrong move — show it on the board briefly, then correct
+            // Wrong move — show it on the board briefly
             _uiState.update { it.copy(boardEnabled = false) }
 
             // Execute the wrong move on the board so the user sees it
@@ -253,11 +253,6 @@ class TrainingViewModel @Inject constructor(
                 // Undo the wrong move by reconstructing the board
                 boardState.clearWrongMove()
                 reconstructBoard(moveHistory.size)
-
-                delay(400)
-
-                // Show the correct move
-                boardState.makeMoveUci(expectedMove)
 
                 onPuzzleFailed()
             }

@@ -3,11 +3,15 @@ package com.chesspuzzles.woodpecker.ui.training
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.graphics.Color
+import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
 import com.chesspuzzles.woodpecker.data.repository.PuzzleRepository
 import com.chesspuzzles.woodpecker.data.repository.SuiteRepository
 import com.chesspuzzles.woodpecker.data.sound.SoundManager
 import com.chesspuzzles.woodpecker.domain.model.Puzzle
 import com.chesspuzzles.woodpecker.ui.components.chessboard.BoardState
+import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
+import com.chesspuzzles.woodpecker.ui.theme.WrongRed
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +43,8 @@ data class TrainingUiState(
     val moveHistoryIndex: Int = 0,
     val moveHistorySize: Int = 0,
     val displayedPuzzleIndex: Int = 0,
-    val isReviewingPastPuzzle: Boolean = false
+    val isReviewingPastPuzzle: Boolean = false,
+    val flashColor: Color? = null
 )
 
 @HiltViewModel
@@ -47,7 +52,8 @@ class TrainingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val puzzleRepository: PuzzleRepository,
     private val suiteRepository: SuiteRepository,
-    private val soundManager: SoundManager
+    private val soundManager: SoundManager,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
     private val suiteId: Long = savedStateHandle["suiteId"]!!
@@ -274,6 +280,8 @@ class TrainingViewModel @Inject constructor(
         val puzzle = puzzles[_uiState.value.currentPuzzleIndex]
         soundManager.playCorrect()
 
+        val autoAdvance = appPreferences.isAutoAdvance()
+
         viewModelScope.launch {
             if (!retry) {
                 suiteRepository.saveAttempt(
@@ -290,9 +298,16 @@ class TrainingViewModel @Inject constructor(
                 it.copy(
                     boardEnabled = false,
                     result = PuzzleResult.CORRECT,
-                    showContinueButton = true,
-                    correctCount = it.correctCount + 1
+                    showContinueButton = !autoAdvance,
+                    correctCount = it.correctCount + 1,
+                    flashColor = if (autoAdvance) CorrectGreen else null
                 )
+            }
+
+            if (autoAdvance) {
+                delay(600)
+                _uiState.update { it.copy(flashColor = null) }
+                advanceToNext()
             }
         }
     }
@@ -300,6 +315,8 @@ class TrainingViewModel @Inject constructor(
     private fun onPuzzleFailed() {
         val timeMs = System.currentTimeMillis() - puzzleStartTime
         val puzzle = puzzles[_uiState.value.currentPuzzleIndex]
+
+        val autoAdvance = appPreferences.isAutoAdvance()
 
         viewModelScope.launch {
             if (!retry) {
@@ -321,11 +338,17 @@ class TrainingViewModel @Inject constructor(
                 it.copy(
                     boardEnabled = false,
                     result = PuzzleResult.WRONG,
-                    showContinueButton = true,
+                    showContinueButton = !autoAdvance,
                     wrongCount = it.wrongCount + 1,
-                    moveHistorySize = moveHistory.size
-                    // moveHistoryIndex stays where it is — user can navigate forward to see solution
+                    moveHistorySize = moveHistory.size,
+                    flashColor = if (autoAdvance) WrongRed else null
                 )
+            }
+
+            if (autoAdvance) {
+                delay(1200)
+                _uiState.update { it.copy(flashColor = null) }
+                advanceToNext()
             }
         }
     }
@@ -476,6 +499,10 @@ class TrainingViewModel @Inject constructor(
                 boardEnabled = false
             )
         }
+    }
+
+    fun clearFlash() {
+        _uiState.update { it.copy(flashColor = null) }
     }
 
     fun getCycleId(): Long = cycleId

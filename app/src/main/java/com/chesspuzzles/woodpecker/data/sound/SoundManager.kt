@@ -3,6 +3,7 @@ package com.chesspuzzles.woodpecker.data.sound
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
+import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
@@ -16,7 +17,8 @@ import kotlin.math.sin
 
 @Singleton
 class SoundManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val appPreferences: AppPreferences
 ) {
     private val soundPool: SoundPool
     private var moveSoundId: Int = 0
@@ -150,14 +152,17 @@ class SoundManager @Inject constructor(
     }
 
     fun playMove() {
+        if (!appPreferences.isSoundEnabled()) return
         if (moveSoundId != 0) soundPool.play(moveSoundId, 0.7f, 0.7f, 1, 0, 1f)
     }
 
     fun playCorrect() {
+        if (!appPreferences.isSoundEnabled()) return
         if (correctSoundId != 0) soundPool.play(correctSoundId, 0.8f, 0.8f, 1, 0, 1f)
     }
 
     fun playWrong() {
+        if (!appPreferences.isSoundEnabled()) return
         if (wrongSoundId != 0) soundPool.play(wrongSoundId, 0.8f, 0.8f, 1, 0, 1f)
     }
 }

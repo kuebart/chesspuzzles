@@ -12,6 +12,9 @@ data class AppStrings(
     // Settings
     val settingsTitle: String,
     val languageLabel: String,
+    val soundLabel: String,
+    val autoAdvanceLabel: String,
+    val autoAdvanceDescription: String,
 
     // HomeScreen
     val appTitle: String,
@@ -99,6 +102,9 @@ val DeStrings = AppStrings(
     // Settings
     settingsTitle = "Einstellungen",
     languageLabel = "Sprache",
+    soundLabel = "Sound",
+    autoAdvanceLabel = "Automatisch weiter",
+    autoAdvanceDescription = "Springt nach richtig/falsch automatisch zur nächsten Aufgabe",
 
     // HomeScreen
     appTitle = "Woodpecker",
@@ -238,6 +244,9 @@ val EnStrings = AppStrings(
     // Settings
     settingsTitle = "Settings",
     languageLabel = "Language",
+    soundLabel = "Sound",
+    autoAdvanceLabel = "Auto-advance",
+    autoAdvanceDescription = "Automatically advances to the next puzzle after correct/wrong",
 
     // HomeScreen
     appTitle = "Woodpecker",

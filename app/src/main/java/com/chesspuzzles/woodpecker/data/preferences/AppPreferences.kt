@@ -25,8 +25,22 @@ class AppPreferences @Inject constructor(
         prefs.edit().putBoolean(KEY_SHOW_INFO_BOX, false).apply()
     }
 
+    fun isSoundEnabled(): Boolean = prefs.getBoolean(KEY_SOUND_ENABLED, true)
+
+    fun setSoundEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
+    }
+
+    fun isAutoAdvance(): Boolean = prefs.getBoolean(KEY_AUTO_ADVANCE, false)
+
+    fun setAutoAdvance(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_AUTO_ADVANCE, enabled).apply()
+    }
+
     companion object {
         private const val KEY_LANGUAGE = "language"
         private const val KEY_SHOW_INFO_BOX = "show_info_box"
+        private const val KEY_SOUND_ENABLED = "sound_enabled"
+        private const val KEY_AUTO_ADVANCE = "auto_advance"
     }
 }

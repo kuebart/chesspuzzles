@@ -16,8 +16,26 @@ class SettingsViewModel @Inject constructor(
     private val _language = MutableStateFlow(appPreferences.getLanguage())
     val language: StateFlow<String> = _language.asStateFlow()
 
+    private val _soundEnabled = MutableStateFlow(appPreferences.isSoundEnabled())
+    val soundEnabled: StateFlow<Boolean> = _soundEnabled.asStateFlow()
+
+    private val _autoAdvance = MutableStateFlow(appPreferences.isAutoAdvance())
+    val autoAdvance: StateFlow<Boolean> = _autoAdvance.asStateFlow()
+
     fun setLanguage(lang: String) {
         appPreferences.setLanguage(lang)
         _language.value = lang
+    }
+
+    fun toggleSound() {
+        val newValue = !_soundEnabled.value
+        appPreferences.setSoundEnabled(newValue)
+        _soundEnabled.value = newValue
+    }
+
+    fun toggleAutoAdvance() {
+        val newValue = !_autoAdvance.value
+        appPreferences.setAutoAdvance(newValue)
+        _autoAdvance.value = newValue
     }
 }

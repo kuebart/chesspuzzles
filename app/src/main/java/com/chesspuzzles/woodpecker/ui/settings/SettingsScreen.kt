@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -39,6 +40,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val language by viewModel.language.collectAsStateWithLifecycle()
+    val soundEnabled by viewModel.soundEnabled.collectAsStateWithLifecycle()
+    val autoAdvance by viewModel.autoAdvance.collectAsStateWithLifecycle()
     val strings = LocalStrings.current
 
     Scaffold(
@@ -92,6 +95,72 @@ fun SettingsScreen(
                                 viewModel.setLanguage("en")
                                 onLanguageChanged("en")
                             }
+                        )
+                    }
+                }
+
+                // Sound toggle
+                Text(
+                    text = strings.soundLabel,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = viewModel::toggleSound)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = strings.soundLabel,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Switch(
+                            checked = soundEnabled,
+                            onCheckedChange = null
+                        )
+                    }
+                }
+
+                // Auto-advance toggle
+                Text(
+                    text = strings.autoAdvanceLabel,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = viewModel::toggleAutoAdvance)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = strings.autoAdvanceLabel,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                text = strings.autoAdvanceDescription,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = autoAdvance,
+                            onCheckedChange = null,
+                            modifier = Modifier.padding(start = 12.dp)
                         )
                     }
                 }

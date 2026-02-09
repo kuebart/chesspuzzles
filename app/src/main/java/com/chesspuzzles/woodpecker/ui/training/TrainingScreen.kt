@@ -1,5 +1,9 @@
 package com.chesspuzzles.woodpecker.ui.training
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -221,14 +225,31 @@ fun TrainingScreen(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 // Chess Board - full width, no horizontal padding
-                ChessBoard(
-                    boardState = viewModel.boardState,
-                    enabled = uiState.boardEnabled,
-                    onMoveAttempt = { from, to ->
-                        viewModel.onUserMove(from, to)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box {
+                    ChessBoard(
+                        boardState = viewModel.boardState,
+                        enabled = uiState.boardEnabled,
+                        onMoveAttempt = { from, to ->
+                            viewModel.onUserMove(from, to)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Flash overlay for auto-advance feedback
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = uiState.flashColor != null,
+                        enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(100)),
+                        exit = fadeOut(animationSpec = androidx.compose.animation.core.tween(400))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(
+                                    (uiState.flashColor ?: CorrectGreen).copy(alpha = 0.3f)
+                                )
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

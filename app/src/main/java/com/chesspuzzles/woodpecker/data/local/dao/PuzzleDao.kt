@@ -66,4 +66,7 @@ interface PuzzleDao {
 
     @Query("SELECT COUNT(DISTINCT pa.puzzleId) FROM puzzle_attempts pa WHERE pa.solved = 1")
     fun observeTotalSolvedCount(): Flow<Int>
+
+    @Query("SELECT DISTINCT themes FROM puzzles")
+    suspend fun getAllThemeStrings(): List<String>
 }

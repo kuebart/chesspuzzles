@@ -18,6 +18,7 @@ import javax.inject.Inject
 data class CreateSuiteUiState(
     val name: String = "",
     val selectedThemes: Set<PuzzleTheme> = emptySet(),
+    val availableThemes: Set<PuzzleTheme> = emptySet(),
     val ratingMin: Int = 1000,
     val ratingMax: Int = 2000,
     val puzzleCount: Int = 200,
@@ -39,6 +40,10 @@ class CreateSuiteViewModel @Inject constructor(
     private var countJob: Job? = null
 
     init {
+        viewModelScope.launch {
+            val available = puzzleRepository.getAvailableThemes()
+            _uiState.update { it.copy(availableThemes = available) }
+        }
         updateMatchingCount()
     }
 

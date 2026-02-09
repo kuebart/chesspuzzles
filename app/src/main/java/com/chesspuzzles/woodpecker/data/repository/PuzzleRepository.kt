@@ -59,6 +59,17 @@ class PuzzleRepository @Inject constructor(
     }
 
 
+    suspend fun getAvailableThemes(): Set<PuzzleTheme> {
+        val allThemeStrings = puzzleDao.getAllThemeStrings()
+        val themes = mutableSetOf<PuzzleTheme>()
+        for (themeString in allThemeStrings) {
+            themeString.split(",").forEach { key ->
+                PuzzleTheme.fromCsvKey(key.trim())?.let { themes.add(it) }
+            }
+        }
+        return themes
+    }
+
     fun observeTotalSolvedCount(): Flow<Int> = puzzleDao.observeTotalSolvedCount()
 
     private fun PuzzleEntity.toDomain() = Puzzle(

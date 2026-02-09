@@ -90,6 +90,8 @@ fun CreateSuiteScreen(
                 style = MaterialTheme.typography.titleMedium
             )
 
+            val available = uiState.availableThemes
+
             val tacticalThemes = listOf(
                 PuzzleTheme.FORK, PuzzleTheme.PIN, PuzzleTheme.SKEWER,
                 PuzzleTheme.DISCOVERED_ATTACK, PuzzleTheme.DOUBLE_CHECK,
@@ -99,73 +101,79 @@ fun CreateSuiteScreen(
                 PuzzleTheme.ZUGZWANG, PuzzleTheme.QUIET_MOVE,
                 PuzzleTheme.X_RAY_ATTACK, PuzzleTheme.CLEARANCE,
                 PuzzleTheme.INTERMEZZO
-            )
+            ).filter { it in available }
 
             val mateThemes = listOf(
                 PuzzleTheme.MATE_IN_1, PuzzleTheme.MATE_IN_2, PuzzleTheme.MATE_IN_3,
                 PuzzleTheme.BACK_RANK_MATE, PuzzleTheme.SMOTHERED_MATE,
                 PuzzleTheme.ARABIAN_MATE, PuzzleTheme.HOOK_MATE
-            )
+            ).filter { it in available }
 
             val phaseThemes = listOf(
                 PuzzleTheme.OPENING, PuzzleTheme.MIDDLEGAME, PuzzleTheme.ENDGAME,
                 PuzzleTheme.PAWN_ENDGAME, PuzzleTheme.ROOK_ENDGAME
-            )
+            ).filter { it in available }
 
             // Tactical Motifs
-            Text(
-                text = strings.tacticalMotifs,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                tacticalThemes.forEach { theme ->
-                    ThemeChip(
-                        theme = theme,
-                        selected = theme in uiState.selectedThemes,
-                        onToggle = { viewModel.toggleTheme(theme) }
-                    )
+            if (tacticalThemes.isNotEmpty()) {
+                Text(
+                    text = strings.tacticalMotifs,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    tacticalThemes.forEach { theme ->
+                        ThemeChip(
+                            theme = theme,
+                            selected = theme in uiState.selectedThemes,
+                            onToggle = { viewModel.toggleTheme(theme) }
+                        )
+                    }
                 }
             }
 
             // Mating Patterns
-            Text(
-                text = strings.matingPatterns,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                mateThemes.forEach { theme ->
-                    ThemeChip(
-                        theme = theme,
-                        selected = theme in uiState.selectedThemes,
-                        onToggle = { viewModel.toggleTheme(theme) }
-                    )
+            if (mateThemes.isNotEmpty()) {
+                Text(
+                    text = strings.matingPatterns,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    mateThemes.forEach { theme ->
+                        ThemeChip(
+                            theme = theme,
+                            selected = theme in uiState.selectedThemes,
+                            onToggle = { viewModel.toggleTheme(theme) }
+                        )
+                    }
                 }
             }
 
             // Game Phase
-            Text(
-                text = strings.gamePhase,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                phaseThemes.forEach { theme ->
-                    ThemeChip(
-                        theme = theme,
-                        selected = theme in uiState.selectedThemes,
-                        onToggle = { viewModel.toggleTheme(theme) }
-                    )
+            if (phaseThemes.isNotEmpty()) {
+                Text(
+                    text = strings.gamePhase,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    phaseThemes.forEach { theme ->
+                        ThemeChip(
+                            theme = theme,
+                            selected = theme in uiState.selectedThemes,
+                            onToggle = { viewModel.toggleTheme(theme) }
+                        )
+                    }
                 }
             }
 

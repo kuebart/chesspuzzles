@@ -297,7 +297,7 @@ private fun CycleRow(
                 )
                 if (cycle.completedAt == null && progress != null) {
                     Text(
-                        text = "${strings.taskProgress} ${progress + 1} / $totalPuzzles",
+                        text = "${strings.continueCycle} (${progress + 1}/$totalPuzzles)",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

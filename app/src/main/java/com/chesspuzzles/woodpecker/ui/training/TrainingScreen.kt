@@ -225,31 +225,14 @@ fun TrainingScreen(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 // Chess Board - full width, no horizontal padding
-                Box {
-                    ChessBoard(
-                        boardState = viewModel.boardState,
-                        enabled = uiState.boardEnabled,
-                        onMoveAttempt = { from, to ->
-                            viewModel.onUserMove(from, to)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Flash overlay for auto-advance feedback
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = uiState.flashColor != null,
-                        enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(100)),
-                        exit = fadeOut(animationSpec = androidx.compose.animation.core.tween(400))
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .background(
-                                    (uiState.flashColor ?: CorrectGreen).copy(alpha = 0.3f)
-                                )
-                        )
-                    }
-                }
+                ChessBoard(
+                    boardState = viewModel.boardState,
+                    enabled = uiState.boardEnabled,
+                    onMoveAttempt = { from, to ->
+                        viewModel.onUserMove(from, to)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -352,6 +335,21 @@ fun TrainingScreen(
                     }
                 }
             }
+        }
+
+        // Full-screen flash overlay for auto-advance feedback
+        androidx.compose.animation.AnimatedVisibility(
+            visible = uiState.flashColor != null,
+            enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(100)),
+            exit = fadeOut(animationSpec = androidx.compose.animation.core.tween(400))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        (uiState.flashColor ?: CorrectGreen).copy(alpha = 0.25f)
+                    )
+            )
         }
         }
     }

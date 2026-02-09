@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chesspuzzles.woodpecker.data.repository.PuzzleRepository
 import com.chesspuzzles.woodpecker.data.repository.SuiteRepository
+import com.chesspuzzles.woodpecker.data.sound.SoundManager
 import com.chesspuzzles.woodpecker.domain.model.Puzzle
 import com.chesspuzzles.woodpecker.ui.components.chessboard.BoardState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,7 +46,8 @@ data class TrainingUiState(
 class TrainingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val puzzleRepository: PuzzleRepository,
-    private val suiteRepository: SuiteRepository
+    private val suiteRepository: SuiteRepository,
+    private val soundManager: SoundManager
 ) : ViewModel() {
 
     private val suiteId: Long = savedStateHandle["suiteId"]!!
@@ -179,6 +181,7 @@ class TrainingViewModel @Inject constructor(
         delay(500)
         val opponentMove = puzzle.moves[0]
         boardState.makeMoveUci(opponentMove)
+        soundManager.playMove()
         currentMoveIndex = 1
 
         // Add opponent's first move to history
@@ -209,6 +212,7 @@ class TrainingViewModel @Inject constructor(
         if (userUci == "$expectedFrom$expectedTo" || userUci == expectedMove) {
             // Correct move
             boardState.makeMoveUci(expectedMove)
+            soundManager.playMove()
             currentMoveIndex++
             moveHistory.add(expectedMove)
 
@@ -229,6 +233,7 @@ class TrainingViewModel @Inject constructor(
                     delay(400)
                     val nextMove = puzzle.moves[currentMoveIndex]
                     boardState.makeMoveUci(nextMove)
+                    soundManager.playMove()
                     currentMoveIndex++
                     moveHistory.add(nextMove)
 
@@ -250,6 +255,7 @@ class TrainingViewModel @Inject constructor(
             if (wrongMoveExecuted) {
                 boardState.setWrongMove(fromSquare, toSquare)
             }
+            soundManager.playWrong()
 
             viewModelScope.launch {
                 delay(800)
@@ -266,6 +272,7 @@ class TrainingViewModel @Inject constructor(
     private fun onPuzzleSolved() {
         val timeMs = System.currentTimeMillis() - puzzleStartTime
         val puzzle = puzzles[_uiState.value.currentPuzzleIndex]
+        soundManager.playCorrect()
 
         viewModelScope.launch {
             if (!retry) {

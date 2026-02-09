@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,26 +82,47 @@ fun CycleSummaryScreen(
             ) {
                 CircularProgressIndicator()
             }
-        } else {
-            Column(
+        } else if (uiState.allCycleStats.isNotEmpty()) {
+            val pageCount = uiState.allCycleStats.size
+            val pagerState = rememberPagerState(
+                initialPage = uiState.initialPageIndex,
+                pageCount = { pageCount }
+            )
+
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
+            ) { page ->
+                val (cycle, stats) = uiState.allCycleStats[page]
+                val isLatest = page == pageCount - 1
+                val failedCount = uiState.failedCounts[cycle.id] ?: 0
 
-                Text(
-                    text = "${strings.cycle} ${uiState.cycleNumber}",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Text(
+                        text = "${strings.cycle} ${cycle.cycleNumber}",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                uiState.stats?.let { stats ->
+                    // Page indicator
+                    Text(
+                        text = "${page + 1} / $pageCount",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     // Main stats cards
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -152,33 +174,16 @@ fun CycleSummaryScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         CycleLineChart(
                             cycleStats = uiState.allCycleStats,
-                            highlightCycleId = viewModel.getCycleId(),
+                            highlightCycleId = cycle.id,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(220.dp)
                         )
                     }
-                }
 
-                if (uiState.isLatestCycle) {
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Button(
-                        onClick = { viewModel.startNextCycle(onStartNextCycle) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(end = 4.dp)
-                        )
-                        Text(strings.startNextCycle)
-                    }
-
-                    if (uiState.failedCount > 0) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                    // Retry button only for latest cycle with errors
+                    if (isLatest && failedCount > 0) {
+                        Spacer(modifier = Modifier.height(32.dp))
                         OutlinedButton(
                             onClick = { viewModel.startRetryTraining(onStartRetry) },
                             modifier = Modifier.fillMaxWidth()
@@ -190,12 +195,12 @@ fun CycleSummaryScreen(
                                     .size(20.dp)
                                     .padding(end = 4.dp)
                             )
-                            Text("${strings.retryErrors} (${uiState.failedCount})")
+                            Text("${strings.retryErrors} ($failedCount)")
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
         }
@@ -256,4 +261,3 @@ private fun StatCard(
         }
     }
 }
-

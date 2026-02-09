@@ -21,7 +21,9 @@ data class CycleSummaryUiState(
     val suiteId: Long = 0,
     val isLoading: Boolean = true,
     val failedCount: Int = 0,
-    val isLatestCycle: Boolean = false
+    val isLatestCycle: Boolean = false,
+    val initialPageIndex: Int = 0,
+    val failedCounts: Map<Long, Int> = emptyMap()
 )
 
 @HiltViewModel
@@ -56,6 +58,16 @@ class CycleSummaryViewModel @Inject constructor(
                         val allCycleStats = suiteRepository.getCycleStatsForAllCycles(suite.id)
                         val failedCount = suiteRepository.getFailedCountForCycle(cycleId)
                         val latestCompleted = suiteCycles.filter { it.completedAt != null }.maxByOrNull { it.cycleNumber }
+
+                        // Compute failed counts for all cycles
+                        val failedCounts = mutableMapOf<Long, Int>()
+                        for ((c, _) in allCycleStats) {
+                            failedCounts[c.id] = suiteRepository.getFailedCountForCycle(c.id)
+                        }
+
+                        val initialPage = allCycleStats.indexOfFirst { it.first.id == cycleId }
+                            .coerceAtLeast(0)
+
                         _uiState.update {
                             it.copy(
                                 cycleNumber = cycle.cycleNumber,
@@ -64,7 +76,9 @@ class CycleSummaryViewModel @Inject constructor(
                                 suiteId = suite.id,
                                 isLoading = false,
                                 failedCount = failedCount,
-                                isLatestCycle = latestCompleted?.id == cycleId
+                                isLatestCycle = latestCompleted?.id == cycleId,
+                                initialPageIndex = initialPage,
+                                failedCounts = failedCounts
                             )
                         }
                         return@collect

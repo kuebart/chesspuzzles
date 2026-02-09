@@ -69,4 +69,9 @@ class SuiteDetailViewModel @Inject constructor(
         return suiteRepository.getOrCreateActiveCycle(suiteId)
     }
 
+    fun renameSuite(name: String) {
+        viewModelScope.launch {
+            suiteRepository.renameSuite(suiteId, name)
+        }
+    }
 }

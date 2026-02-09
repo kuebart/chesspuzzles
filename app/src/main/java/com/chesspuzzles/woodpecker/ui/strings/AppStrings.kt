@@ -47,6 +47,8 @@ data class AppStrings(
     val noPuzzlesFound: String,
 
     // SuiteDetailScreen
+    val renameSuite: String,
+    val save: String,
     val deleteSuiteTitle: String,
     val deleteSuiteConfirm: String,
     val suiteDefault: String,
@@ -140,6 +142,8 @@ val DeStrings = AppStrings(
     noPuzzlesFound = "Keine passenden Aufgaben gefunden",
 
     // SuiteDetailScreen
+    renameSuite = "Suite umbenennen",
+    save = "Speichern",
     deleteSuiteTitle = "Suite löschen",
     deleteSuiteConfirm = "Bist du sicher, dass du diese Suite und alle Zyklen löschen möchtest?",
     suiteDefault = "Suite",
@@ -285,6 +289,8 @@ val EnStrings = AppStrings(
     noPuzzlesFound = "No puzzles found matching criteria",
 
     // SuiteDetailScreen
+    renameSuite = "Rename Suite",
+    save = "Save",
     deleteSuiteTitle = "Delete Suite",
     deleteSuiteConfirm = "Are you sure you want to delete this suite and all its cycles?",
     suiteDefault = "Suite",

@@ -29,6 +29,9 @@ interface SuiteDao {
     @Query("DELETE FROM suites WHERE id = :suiteId")
     suspend fun deleteSuite(suiteId: Long)
 
+    @Query("UPDATE suites SET name = :name WHERE id = :suiteId")
+    suspend fun updateSuiteName(suiteId: Long, name: String)
+
     @Query("SELECT COUNT(*) FROM suites")
     fun observeSuiteCount(): Flow<Int>
 

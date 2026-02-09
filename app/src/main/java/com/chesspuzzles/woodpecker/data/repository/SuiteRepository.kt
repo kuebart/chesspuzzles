@@ -55,6 +55,10 @@ class SuiteRepository @Inject constructor(
         suiteDao.deleteSuite(suiteId)
     }
 
+    suspend fun renameSuite(suiteId: Long, name: String) {
+        suiteDao.updateSuiteName(suiteId, name)
+    }
+
     fun observeCyclesForSuite(suiteId: Long): Flow<List<Cycle>> =
         cycleDao.observeCyclesForSuite(suiteId).map { cycles ->
             cycles.map { it.toDomain() }

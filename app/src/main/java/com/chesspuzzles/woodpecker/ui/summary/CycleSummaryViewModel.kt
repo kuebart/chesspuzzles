@@ -87,4 +87,6 @@ class CycleSummaryViewModel @Inject constructor(
             onStarted(_uiState.value.suiteId, cycleId)
         }
     }
+
+    fun getCycleId(): Long = cycleId
 }

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
 import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 
@@ -42,6 +45,8 @@ fun SettingsScreen(
     val language by viewModel.language.collectAsStateWithLifecycle()
     val soundEnabled by viewModel.soundEnabled.collectAsStateWithLifecycle()
     val autoAdvance by viewModel.autoAdvance.collectAsStateWithLifecycle()
+    val sortOrder by viewModel.sortOrder.collectAsStateWithLifecycle()
+    val sortReversed by viewModel.sortReversed.collectAsStateWithLifecycle()
     val strings = LocalStrings.current
 
     Scaffold(
@@ -65,7 +70,8 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -164,8 +170,84 @@ fun SettingsScreen(
                         )
                     }
                 }
+
+                // Sort order
+                Text(
+                    text = strings.sortLabel,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Column {
+                        SortOption(
+                            label = strings.sortByLastAccess,
+                            selected = sortOrder == AppPreferences.SORT_LAST_ACCESS,
+                            onClick = { viewModel.setSortOrder(AppPreferences.SORT_LAST_ACCESS) }
+                        )
+                        SortOption(
+                            label = strings.sortByName,
+                            selected = sortOrder == AppPreferences.SORT_NAME,
+                            onClick = { viewModel.setSortOrder(AppPreferences.SORT_NAME) }
+                        )
+                        SortOption(
+                            label = strings.sortByCreated,
+                            selected = sortOrder == AppPreferences.SORT_CREATED,
+                            onClick = { viewModel.setSortOrder(AppPreferences.SORT_CREATED) }
+                        )
+                    }
+                }
+
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(onClick = viewModel::toggleSortReversed)
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = strings.sortReversed,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Switch(
+                            checked = sortReversed,
+                            onCheckedChange = null
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun SortOption(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 12.dp)
+        )
     }
 }
 

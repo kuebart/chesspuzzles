@@ -43,12 +43,19 @@ class AppPreferences @Inject constructor(
         prefs.edit().putString(KEY_SUITE_SORT, sort).apply()
     }
 
+    fun isSuiteSortReversed(): Boolean = prefs.getBoolean(KEY_SUITE_SORT_REVERSED, false)
+
+    fun setSuiteSortReversed(reversed: Boolean) {
+        prefs.edit().putBoolean(KEY_SUITE_SORT_REVERSED, reversed).apply()
+    }
+
     companion object {
         private const val KEY_LANGUAGE = "language"
         private const val KEY_SHOW_INFO_BOX = "show_info_box"
         private const val KEY_SOUND_ENABLED = "sound_enabled"
         private const val KEY_AUTO_ADVANCE = "auto_advance"
         private const val KEY_SUITE_SORT = "suite_sort"
+        private const val KEY_SUITE_SORT_REVERSED = "suite_sort_reversed"
 
         const val SORT_LAST_ACCESS = "last_access"
         const val SORT_NAME = "name"

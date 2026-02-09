@@ -7,7 +7,6 @@ import com.chesspuzzles.woodpecker.data.repository.PuzzleRepository
 import com.chesspuzzles.woodpecker.data.repository.SuiteRepository
 import com.chesspuzzles.woodpecker.domain.model.Suite
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -19,8 +18,7 @@ data class HomeUiState(
     val suites: List<Suite> = emptyList(),
     val totalSolved: Int = 0,
     val trainingDays: Int = 0,
-    val isLoading: Boolean = true,
-    val sortOrder: String = AppPreferences.SORT_LAST_ACCESS
+    val isLoading: Boolean = true
 )
 
 @HiltViewModel
@@ -30,14 +28,11 @@ class HomeViewModel @Inject constructor(
     private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val _sortOrder = MutableStateFlow(appPreferences.getSuiteSortOrder())
-
     val uiState: StateFlow<HomeUiState> = combine(
         suiteRepository.observeAllSuites(),
         puzzleRepository.observeTotalSolvedCount(),
-        suiteRepository.observeTrainingDays(),
-        _sortOrder
-    ) { suites, totalSolved, trainingDays, sortOrder ->
+        suiteRepository.observeTrainingDays()
+    ) { suites, totalSolved, trainingDays ->
         // Enrich suites with cycle info
         val enrichedSuites = suites.map { suite ->
             val cycles = suiteRepository.getCyclesForSuite(suite.id)
@@ -61,29 +56,32 @@ class HomeViewModel @Inject constructor(
             )
         }
 
+        val sortOrder = appPreferences.getSuiteSortOrder()
+        val reversed = appPreferences.isSuiteSortReversed()
+
         val sortedSuites = when (sortOrder) {
-            AppPreferences.SORT_NAME -> enrichedSuites.sortedBy { it.name.lowercase() }
-            AppPreferences.SORT_CREATED -> enrichedSuites.sortedByDescending { it.createdAt }
-            else -> enrichedSuites.sortedByDescending { it.lastAccessedAt }
+            AppPreferences.SORT_NAME ->
+                if (reversed) enrichedSuites.sortedByDescending { it.name.lowercase() }
+                else enrichedSuites.sortedBy { it.name.lowercase() }
+            AppPreferences.SORT_CREATED ->
+                if (reversed) enrichedSuites.sortedBy { it.createdAt }
+                else enrichedSuites.sortedByDescending { it.createdAt }
+            else ->
+                if (reversed) enrichedSuites.sortedBy { it.lastAccessedAt }
+                else enrichedSuites.sortedByDescending { it.lastAccessedAt }
         }
 
         HomeUiState(
             suites = sortedSuites,
             totalSolved = totalSolved,
             trainingDays = trainingDays,
-            isLoading = false,
-            sortOrder = sortOrder
+            isLoading = false
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = HomeUiState()
     )
-
-    fun setSortOrder(sort: String) {
-        appPreferences.setSuiteSortOrder(sort)
-        _sortOrder.value = sort
-    }
 
     suspend fun getOrCreateCycleForSuite(suiteId: Long): Long {
         return suiteRepository.getOrCreateActiveCycle(suiteId)

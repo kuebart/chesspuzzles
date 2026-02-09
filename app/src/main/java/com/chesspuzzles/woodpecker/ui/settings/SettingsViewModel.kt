@@ -22,6 +22,12 @@ class SettingsViewModel @Inject constructor(
     private val _autoAdvance = MutableStateFlow(appPreferences.isAutoAdvance())
     val autoAdvance: StateFlow<Boolean> = _autoAdvance.asStateFlow()
 
+    private val _sortOrder = MutableStateFlow(appPreferences.getSuiteSortOrder())
+    val sortOrder: StateFlow<String> = _sortOrder.asStateFlow()
+
+    private val _sortReversed = MutableStateFlow(appPreferences.isSuiteSortReversed())
+    val sortReversed: StateFlow<Boolean> = _sortReversed.asStateFlow()
+
     fun setLanguage(lang: String) {
         appPreferences.setLanguage(lang)
         _language.value = lang
@@ -37,5 +43,16 @@ class SettingsViewModel @Inject constructor(
         val newValue = !_autoAdvance.value
         appPreferences.setAutoAdvance(newValue)
         _autoAdvance.value = newValue
+    }
+
+    fun setSortOrder(sort: String) {
+        appPreferences.setSuiteSortOrder(sort)
+        _sortOrder.value = sort
+    }
+
+    fun toggleSortReversed() {
+        val newValue = !_sortReversed.value
+        appPreferences.setSuiteSortReversed(newValue)
+        _sortReversed.value = newValue
     }
 }

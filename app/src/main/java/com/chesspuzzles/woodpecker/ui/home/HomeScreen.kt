@@ -28,7 +28,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -178,11 +177,6 @@ fun HomeScreen(
                         totalSolved = uiState.totalSolved,
                         trainingDays = uiState.trainingDays
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    SortChips(
-                        selected = uiState.sortOrder,
-                        onSortChanged = { viewModel.setSortOrder(it) }
-                    )
                 }
 
                 if (uiState.suites.isEmpty()) {
@@ -232,28 +226,6 @@ fun HomeScreen(
                 item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
-        }
-    }
-}
-
-@Composable
-private fun SortChips(selected: String, onSortChanged: (String) -> Unit) {
-    val strings = LocalStrings.current
-    val options = listOf(
-        AppPreferences.SORT_LAST_ACCESS to strings.sortByLastAccess,
-        AppPreferences.SORT_NAME to strings.sortByName,
-        AppPreferences.SORT_CREATED to strings.sortByCreated
-    )
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        options.forEach { (key, label) ->
-            FilterChip(
-                selected = selected == key,
-                onClick = { onSortChanged(key) },
-                label = { Text(label, style = MaterialTheme.typography.labelSmall) }
-            )
         }
     }
 }

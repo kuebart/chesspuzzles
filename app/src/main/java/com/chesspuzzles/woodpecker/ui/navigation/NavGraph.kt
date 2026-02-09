@@ -84,6 +84,11 @@ fun NavGraph(
                 },
                 onStartTraining = { suiteId, cycleId ->
                     navController.navigate(Routes.training(suiteId, cycleId))
+                },
+                onNavigateToSuite = { suiteId ->
+                    navController.navigate(Routes.suiteDetail(suiteId)) {
+                        popUpTo(Routes.HOME)
+                    }
                 }
             )
         }

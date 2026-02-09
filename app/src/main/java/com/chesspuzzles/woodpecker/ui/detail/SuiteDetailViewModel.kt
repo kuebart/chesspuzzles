@@ -3,6 +3,7 @@ package com.chesspuzzles.woodpecker.ui.detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chesspuzzles.woodpecker.data.repository.PuzzleRepository
 import com.chesspuzzles.woodpecker.data.repository.SuiteRepository
 import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
@@ -30,7 +31,8 @@ data class SuiteDetailUiState(
 @HiltViewModel
 class SuiteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val suiteRepository: SuiteRepository
+    private val suiteRepository: SuiteRepository,
+    private val puzzleRepository: PuzzleRepository
 ) : ViewModel() {
 
     private val suiteId: Long = savedStateHandle["suiteId"]!!
@@ -78,6 +80,27 @@ class SuiteDetailViewModel @Inject constructor(
     fun renameSuite(name: String) {
         viewModelScope.launch {
             suiteRepository.renameSuite(suiteId, name)
+        }
+    }
+
+    fun regenerateSuite(onCreated: (Long) -> Unit) {
+        viewModelScope.launch {
+            val suite = uiState.value.suite ?: return@launch
+            val puzzles = puzzleRepository.findPuzzles(
+                themes = suite.themes,
+                ratingMin = suite.ratingMin,
+                ratingMax = suite.ratingMax,
+                limit = suite.puzzleCount
+            )
+            if (puzzles.isEmpty()) return@launch
+            val newSuiteId = suiteRepository.createSuite(
+                name = suite.name,
+                themes = suite.themes,
+                ratingMin = suite.ratingMin,
+                ratingMax = suite.ratingMax,
+                puzzleIds = puzzles.map { it.id }
+            )
+            onCreated(newSuiteId)
         }
     }
 }

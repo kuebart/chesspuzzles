@@ -61,6 +61,7 @@ data class AppStrings(
     val progress: String,
     val cycles: String,
     val noCyclesYet: String,
+    val regenerateSuite: String,
     val cycle: String, // "Cycle"
     val correct: String, // "korrekt" / "correct"
     val time: String,
@@ -162,6 +163,7 @@ val DeStrings = AppStrings(
     progress = "Fortschritt",
     cycles = "Zyklen",
     noCyclesYet = "Noch keine Zyklen.",
+    regenerateSuite = "Neue Suite mit gleichen Einstellungen",
     cycle = "Zyklus",
     correct = "korrekt",
     time = "Zeit",
@@ -315,6 +317,7 @@ val EnStrings = AppStrings(
     progress = "Progress",
     cycles = "Cycles",
     noCyclesYet = "No cycles yet.",
+    regenerateSuite = "New suite with same settings",
     cycle = "Cycle",
     correct = "correct",
     time = "Time",

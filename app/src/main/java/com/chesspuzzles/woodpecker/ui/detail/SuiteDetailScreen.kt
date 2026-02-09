@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -24,6 +25,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -61,6 +63,7 @@ fun SuiteDetailScreen(
     onBack: () -> Unit,
     onContinueCycle: (suiteId: Long, cycleId: Long) -> Unit,
     onStartTraining: (suiteId: Long, cycleId: Long) -> Unit = onContinueCycle,
+    onNavigateToSuite: (suiteId: Long) -> Unit,
     viewModel: SuiteDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -244,6 +247,22 @@ fun SuiteDetailScreen(
                         } else {
                             Text(strings.startTraining)
                         }
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.regenerateSuite { newSuiteId ->
+                                onNavigateToSuite(newSuiteId)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(strings.regenerateSuite)
                     }
                 }
 

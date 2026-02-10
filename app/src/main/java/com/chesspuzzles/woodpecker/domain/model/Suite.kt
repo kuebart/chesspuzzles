@@ -17,5 +17,5 @@ data class Suite(
     val failedPuzzleCount: Int = 0
 ) {
     val displayName: String
-        get() = "$name v$version"
+        get() = if (groupId != 0L) "$name v$version" else name
 }

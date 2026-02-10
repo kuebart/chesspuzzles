@@ -180,10 +180,14 @@ fun SuiteDetailScreen(
         } else {
             val suite = uiState.suite ?: return@AppBackground
 
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
+            ) {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -401,24 +405,28 @@ fun SuiteDetailScreen(
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    OutlinedButton(
-                        onClick = {
-                            viewModel.regenerateSuite(strings.regenerateNoPuzzles) { newSuiteId ->
-                                onNavigateToSuite(newSuiteId)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Text(strings.regenerateSuite)
-                    }
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
+            }
+
+            OutlinedButton(
+                onClick = {
+                    viewModel.regenerateSuite(strings.regenerateNoPuzzles) { newSuiteId ->
+                        onNavigateToSuite(newSuiteId)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+            ) {
+                Icon(
+                    Icons.Default.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(strings.regenerateSuite)
+            }
             }
         }
         }

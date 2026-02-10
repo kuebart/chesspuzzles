@@ -156,7 +156,7 @@ fun TrainingScreen(
                     }
                 }
 
-                // Correct / Wrong counter
+                // Correct / Wrong counter + rating
                 run {
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
@@ -179,13 +179,13 @@ fun TrainingScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = WrongRed
                         )
-                        if (uiState.suiteRatingMax > 0) {
-                            Text(
-                                text = " (${uiState.suiteRatingMin}–${uiState.suiteRatingMax})",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                    }
+                    if (uiState.suiteRatingMax > 0) {
+                        Text(
+                            text = "(${uiState.suiteRatingMin} / ${uiState.suiteRatingMax})",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 

@@ -150,25 +150,23 @@ fun CycleSummaryScreen(
                 }
 
                 // Cycle comparison chart
-                if (uiState.allCycleStats.size > 1) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = strings.timePerCycle,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    CycleLineChart(
-                        cycleStats = uiState.allCycleStats,
-                        highlightCycleId = cycle.id,
-                        onCycleClick = { cycleId ->
-                            val index = uiState.allCycleStats.indexOfFirst { it.first.id == cycleId }
-                            if (index >= 0) selectedPage = index
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(220.dp)
-                    )
-                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = strings.timePerCycle,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                CycleLineChart(
+                    cycleStats = uiState.allCycleStats,
+                    highlightCycleId = cycle.id,
+                    onCycleClick = { cycleId ->
+                        val index = uiState.allCycleStats.indexOfFirst { it.first.id == cycleId }
+                        if (index >= 0) selectedPage = index
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                )
 
                 // Retry button only for latest cycle with errors
                 if (isLatest && failedCount > 0) {

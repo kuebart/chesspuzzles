@@ -284,19 +284,21 @@ fun SuiteDetailScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        if (completedCycles.size > 1) {
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        CycleLineChart(
-                            cycleStats = completedCycles,
-                            highlightCycleId = selectedCycle.first.id,
-                            onCycleClick = { cycleId ->
-                                val index = completedCycles.indexOfFirst { it.first.id == cycleId }
-                                if (index >= 0) selectedIndex = index
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(170.dp)
-                        )
+                            CycleLineChart(
+                                cycleStats = completedCycles,
+                                highlightCycleId = selectedCycle.first.id,
+                                onCycleClick = { cycleId ->
+                                    val index = completedCycles.indexOfFirst { it.first.id == cycleId }
+                                    if (index >= 0) selectedIndex = index
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(170.dp)
+                            )
+                        }
                     }
                 } else {
                     item {

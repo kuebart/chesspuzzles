@@ -185,6 +185,12 @@ fun SuiteDetailScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
+            val completedCycles = uiState.cycles
+                .filter { it.stats != null }
+                .map { Pair(it.cycle, it.stats!!) }
+            val hasActiveCycle = uiState.cycles.any { it.cycle.completedAt == null }
+            val suiteAccentColor = SuiteColors[(suite.id % SuiteColors.size).toInt()]
+
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -192,97 +198,16 @@ fun SuiteDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Suite Info
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "${suite.puzzleCount} ${strings.puzzlesCount}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = "${strings.ratingLabel}: ${suite.ratingMin} - ${suite.ratingMax}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            if (suite.themes.isNotEmpty()) {
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    modifier = Modifier.padding(top = 8.dp)
-                                ) {
-                                    suite.themes.forEach { theme ->
-                                        val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
-                                        AssistChip(
-                                            onClick = {},
-                                            label = { Text(themeName) }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
 
-                // Start Training button
-                val hasActiveCycle = uiState.cycles.any { it.cycle.completedAt == null }
-                val suiteAccentColor = SuiteColors[(suite.id % SuiteColors.size).toInt()]
-                item {
-                    Button(
-                        onClick = {
-                            if (hasActiveCycle) {
-                                val active = uiState.cycles.first { it.cycle.completedAt == null }
-                                onContinueCycle(suite.id, active.cycle.id)
-                            } else {
-                                scope.launch {
-                                    val cycleId = viewModel.getOrCreateCycle()
-                                    onStartTraining(suite.id, cycleId)
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = suiteAccentColor)
-                    ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        if (hasActiveCycle) {
-                            val active = uiState.cycles.first { it.cycle.completedAt == null }
-                            val progress = active.progress ?: 0
-                            if (progress > 0) {
-                                Text("${strings.continueCycle} (${progress + 1}/${suite.puzzleCount})")
-                            } else {
-                                Text(strings.startCycle)
-                            }
-                        } else {
-                            Text(strings.startTraining)
-                        }
-                    }
-
-                }
-
-                // Progress chart with cycle stats
-                val completedCycles = uiState.cycles
-                    .filter { it.stats != null }
-                    .map { Pair(it.cycle, it.stats!!) }
-                if (completedCycles.size > 1) {
+                // 1. Chart + stats at top
+                if (completedCycles.isNotEmpty()) {
                     item {
                         var selectedIndex by remember { mutableIntStateOf(completedCycles.size - 1) }
                         val selectedCycle = completedCycles[selectedIndex]
                         val selectedStats = selectedCycle.second
 
-                        Text(
-                            text = strings.progress,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
                         CycleLineChart(
                             cycleStats = completedCycles,
                             highlightCycleId = selectedCycle.first.id,
@@ -293,7 +218,6 @@ fun SuiteDetailScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(170.dp)
-                                .padding(top = 8.dp)
                         )
 
                         // Compute deltas from previous cycle in list
@@ -393,7 +317,7 @@ fun SuiteDetailScreen(
                             }
                         }
                     }
-                } else if (completedCycles.isEmpty()) {
+                } else {
                     item {
                         Text(
                             text = strings.noCyclesYet,
@@ -401,6 +325,78 @@ fun SuiteDetailScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
+                    }
+                }
+
+                // 2. Start/continue training button
+                item {
+                    Button(
+                        onClick = {
+                            if (hasActiveCycle) {
+                                val active = uiState.cycles.first { it.cycle.completedAt == null }
+                                onContinueCycle(suite.id, active.cycle.id)
+                            } else {
+                                scope.launch {
+                                    val cycleId = viewModel.getOrCreateCycle()
+                                    onStartTraining(suite.id, cycleId)
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = suiteAccentColor)
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        if (hasActiveCycle) {
+                            val active = uiState.cycles.first { it.cycle.completedAt == null }
+                            val progress = active.progress ?: 0
+                            if (progress > 0) {
+                                Text("${strings.continueCycle} (${progress + 1}/${suite.puzzleCount})")
+                            } else {
+                                Text(strings.startCycle)
+                            }
+                        } else {
+                            Text(strings.startTraining)
+                        }
+                    }
+                }
+
+                // 3. Suite info
+                item {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "${suite.puzzleCount} ${strings.puzzlesCount}",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = "${strings.ratingLabel}: ${suite.ratingMin} - ${suite.ratingMax}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            if (suite.themes.isNotEmpty()) {
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    modifier = Modifier.padding(top = 8.dp)
+                                ) {
+                                    suite.themes.forEach { theme ->
+                                        val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
+                                        AssistChip(
+                                            onClick = {},
+                                            label = { Text(themeName) }
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 

@@ -106,12 +106,16 @@ class SuiteDetailViewModel @Inject constructor(
                 _regenerateError.value = noPuzzlesMessage
                 return@launch
             }
+            val groupId = suiteRepository.ensureGroupId(suiteId)
+            val nextVersion = suiteRepository.getNextVersionInGroup(groupId)
             val newSuiteId = suiteRepository.createSuite(
                 name = suite.name,
                 themes = suite.themes,
                 ratingMin = suite.ratingMin,
                 ratingMax = suite.ratingMax,
-                puzzleIds = puzzles.map { it.id }
+                puzzleIds = puzzles.map { it.id },
+                version = nextVersion,
+                groupId = groupId
             )
             onCreated(newSuiteId)
         }

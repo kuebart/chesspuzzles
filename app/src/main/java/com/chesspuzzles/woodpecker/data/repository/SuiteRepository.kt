@@ -38,7 +38,9 @@ class SuiteRepository @Inject constructor(
         themes: List<PuzzleTheme>,
         ratingMin: Int,
         ratingMax: Int,
-        puzzleIds: List<String>
+        puzzleIds: List<String>,
+        version: Int = 1,
+        groupId: Long = 0
     ): Long {
         val suite = SuiteEntity(
             name = name,
@@ -46,9 +48,16 @@ class SuiteRepository @Inject constructor(
             themes = themes.joinToString(",") { it.csvKey },
             ratingMin = ratingMin,
             ratingMax = ratingMax,
-            puzzleCount = puzzleIds.size
+            puzzleCount = puzzleIds.size,
+            version = version,
+            groupId = groupId
         )
-        return suiteDao.createSuiteWithPuzzles(suite, puzzleIds)
+        val suiteId = suiteDao.createSuiteWithPuzzles(suite, puzzleIds)
+        // If this is the first in a group, set groupId to own id
+        if (groupId == 0L) {
+            // No group yet, leave groupId = 0
+        }
+        return suiteId
     }
 
     suspend fun deleteSuite(suiteId: Long) {
@@ -56,7 +65,26 @@ class SuiteRepository @Inject constructor(
     }
 
     suspend fun renameSuite(suiteId: Long, name: String) {
-        suiteDao.updateSuiteName(suiteId, name)
+        val suite = suiteDao.getSuiteById(suiteId) ?: return
+        if (suite.groupId != 0L) {
+            suiteDao.updateGroupName(suite.groupId, name)
+        } else {
+            suiteDao.updateSuiteName(suiteId, name)
+        }
+    }
+
+    suspend fun ensureGroupId(suiteId: Long): Long {
+        val suite = suiteDao.getSuiteById(suiteId) ?: return 0
+        return if (suite.groupId != 0L) {
+            suite.groupId
+        } else {
+            suiteDao.updateGroupId(suiteId, suiteId)
+            suiteId
+        }
+    }
+
+    suspend fun getNextVersionInGroup(groupId: Long): Int {
+        return (suiteDao.getMaxVersionInGroup(groupId) ?: 0) + 1
     }
 
     suspend fun touchSuiteAccess(suiteId: Long) {
@@ -208,7 +236,9 @@ class SuiteRepository @Inject constructor(
         ratingMin = ratingMin,
         ratingMax = ratingMax,
         puzzleCount = puzzleCount,
-        lastAccessedAt = lastAccessedAt
+        lastAccessedAt = lastAccessedAt,
+        version = version,
+        groupId = groupId
     )
 
     private fun CycleEntity.toDomain() = Cycle(

@@ -35,6 +35,15 @@ interface SuiteDao {
     @Query("UPDATE suites SET lastAccessedAt = :timestamp WHERE id = :suiteId")
     suspend fun updateLastAccessedAt(suiteId: Long, timestamp: Long)
 
+    @Query("UPDATE suites SET groupId = :groupId WHERE id = :suiteId")
+    suspend fun updateGroupId(suiteId: Long, groupId: Long)
+
+    @Query("SELECT MAX(version) FROM suites WHERE groupId = :groupId")
+    suspend fun getMaxVersionInGroup(groupId: Long): Int?
+
+    @Query("UPDATE suites SET name = :name WHERE groupId = :groupId")
+    suspend fun updateGroupName(groupId: Long, name: String)
+
     @Query("SELECT COUNT(*) FROM suites")
     fun observeSuiteCount(): Flow<Int>
 

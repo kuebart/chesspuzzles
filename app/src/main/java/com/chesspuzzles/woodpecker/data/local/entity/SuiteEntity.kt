@@ -12,5 +12,7 @@ data class SuiteEntity(
     val ratingMin: Int,
     val ratingMax: Int,
     val puzzleCount: Int,
-    val lastAccessedAt: Long = 0
+    val lastAccessedAt: Long = 0,
+    val version: Int = 1,
+    val groupId: Long = 0
 )

@@ -23,7 +23,7 @@ import com.chesspuzzles.woodpecker.data.local.entity.SuitePuzzleCrossRef
         CycleEntity::class,
         PuzzleAttemptEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -37,6 +37,13 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE suites ADD COLUMN lastAccessedAt INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("UPDATE suites SET lastAccessedAt = createdAt")
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE suites ADD COLUMN version INTEGER NOT NULL DEFAULT 1")
+                db.execSQL("ALTER TABLE suites ADD COLUMN groupId INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

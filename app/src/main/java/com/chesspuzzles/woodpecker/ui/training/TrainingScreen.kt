@@ -159,33 +159,37 @@ fun TrainingScreen(
                 // Correct / Wrong counter + rating
                 run {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth().then(hp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier.fillMaxWidth().then(hp)
                     ) {
-                        Text(
-                            text = "${uiState.correctCount} ${strings.correctLabel}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = CorrectGreen
-                        )
-                        Text(
-                            text = " / ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "${uiState.wrongCount} ${strings.wrongLabel}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = WrongRed
-                        )
-                    }
-                    if (uiState.suiteRatingMax > 0) {
-                        Text(
-                            text = "(${uiState.suiteRatingMin} / ${uiState.suiteRatingMax})",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            modifier = Modifier.align(Alignment.Center),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${uiState.correctCount} ${strings.correctLabel}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = CorrectGreen
+                            )
+                            Text(
+                                text = " / ",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "${uiState.wrongCount} ${strings.wrongLabel}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = WrongRed
+                            )
+                        }
+                        if (uiState.suiteRatingMax > 0) {
+                            Text(
+                                text = "(${uiState.suiteRatingMin}–${uiState.suiteRatingMax})",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.align(Alignment.CenterEnd)
+                            )
+                        }
                     }
                 }
 

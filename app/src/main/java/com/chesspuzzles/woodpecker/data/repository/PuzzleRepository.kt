@@ -22,6 +22,9 @@ class PuzzleRepository @Inject constructor(
     suspend fun getPuzzlesForSuite(suiteId: Long): List<Puzzle> =
         puzzleDao.getPuzzlesForSuite(suiteId).map { it.toDomain() }
 
+    suspend fun getPuzzleIdsForGroup(groupId: Long, fallbackSuiteId: Long): List<String> =
+        puzzleDao.getPuzzleIdsForGroup(groupId, fallbackSuiteId)
+
     suspend fun findPuzzles(
         themes: List<PuzzleTheme>,
         ratingMin: Int,

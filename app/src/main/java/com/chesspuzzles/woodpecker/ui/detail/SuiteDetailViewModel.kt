@@ -94,7 +94,8 @@ class SuiteDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _regenerateError.value = null
             val suite = uiState.value.suite ?: return@launch
-            val existingIds = puzzleRepository.getPuzzlesForSuite(suiteId).map { it.id }
+            val groupId = suiteRepository.ensureGroupId(suiteId)
+            val existingIds = puzzleRepository.getPuzzleIdsForGroup(groupId, suiteId)
             val puzzles = puzzleRepository.findPuzzlesExcluding(
                 themes = suite.themes,
                 ratingMin = suite.ratingMin,
@@ -106,7 +107,6 @@ class SuiteDetailViewModel @Inject constructor(
                 _regenerateError.value = noPuzzlesMessage
                 return@launch
             }
-            val groupId = suiteRepository.ensureGroupId(suiteId)
             val nextVersion = suiteRepository.getNextVersionInGroup(groupId)
             val newSuiteId = suiteRepository.createSuite(
                 name = suite.name,

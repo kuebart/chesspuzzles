@@ -57,6 +57,16 @@ interface PuzzleDao {
     suspend fun getPuzzlesForSuite(suiteId: Long): List<PuzzleEntity>
 
     @Query("""
+        SELECT DISTINCT sp.puzzleId FROM suite_puzzles sp
+        INNER JOIN suites s ON s.id = sp.suiteId
+        WHERE s.groupId = :groupId AND :groupId != 0
+        UNION
+        SELECT sp.puzzleId FROM suite_puzzles sp
+        WHERE sp.suiteId = :fallbackSuiteId AND :groupId = 0
+    """)
+    suspend fun getPuzzleIdsForGroup(groupId: Long, fallbackSuiteId: Long): List<String>
+
+    @Query("""
         SELECT p.* FROM puzzles p
         INNER JOIN suite_puzzles sp ON p.id = sp.puzzleId
         WHERE sp.suiteId = :suiteId

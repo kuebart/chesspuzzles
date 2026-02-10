@@ -9,10 +9,12 @@ import com.chesspuzzles.woodpecker.domain.model.Cycle
 import com.chesspuzzles.woodpecker.domain.model.CycleStats
 import com.chesspuzzles.woodpecker.domain.model.Suite
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,7 +27,8 @@ data class CycleWithStats(
 data class SuiteDetailUiState(
     val suite: Suite? = null,
     val cycles: List<CycleWithStats> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val regenerateError: String? = null
 )
 
 @HiltViewModel
@@ -43,10 +46,13 @@ class SuiteDetailViewModel @Inject constructor(
         }
     }
 
+    private val _regenerateError = MutableStateFlow<String?>(null)
+
     val uiState: StateFlow<SuiteDetailUiState> = combine(
         suiteRepository.observeSuiteById(suiteId),
-        suiteRepository.observeCyclesForSuite(suiteId)
-    ) { suite, cycles ->
+        suiteRepository.observeCyclesForSuite(suiteId),
+        _regenerateError
+    ) { suite, cycles, regError ->
         val cyclesWithStats = cycles.map { cycle ->
             val stats = suiteRepository.getCycleStats(cycle.id)
             val progress = if (cycle.completedAt == null) {
@@ -58,7 +64,8 @@ class SuiteDetailViewModel @Inject constructor(
         SuiteDetailUiState(
             suite = suite,
             cycles = cyclesWithStats,
-            isLoading = false
+            isLoading = false,
+            regenerateError = regError
         )
     }.stateIn(
         scope = viewModelScope,
@@ -83,16 +90,22 @@ class SuiteDetailViewModel @Inject constructor(
         }
     }
 
-    fun regenerateSuite(onCreated: (Long) -> Unit) {
+    fun regenerateSuite(noPuzzlesMessage: String, onCreated: (Long) -> Unit) {
         viewModelScope.launch {
+            _regenerateError.value = null
             val suite = uiState.value.suite ?: return@launch
-            val puzzles = puzzleRepository.findPuzzles(
+            val existingIds = puzzleRepository.getPuzzlesForSuite(suiteId).map { it.id }
+            val puzzles = puzzleRepository.findPuzzlesExcluding(
                 themes = suite.themes,
                 ratingMin = suite.ratingMin,
                 ratingMax = suite.ratingMax,
-                limit = suite.puzzleCount
+                limit = suite.puzzleCount,
+                excludeIds = existingIds
             )
-            if (puzzles.isEmpty()) return@launch
+            if (puzzles.isEmpty()) {
+                _regenerateError.value = noPuzzlesMessage
+                return@launch
+            }
             val newSuiteId = suiteRepository.createSuite(
                 name = suite.name,
                 themes = suite.themes,
@@ -102,5 +115,9 @@ class SuiteDetailViewModel @Inject constructor(
             )
             onCreated(newSuiteId)
         }
+    }
+
+    fun clearRegenerateError() {
+        _regenerateError.value = null
     }
 }

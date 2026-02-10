@@ -105,6 +105,19 @@ fun SuiteDetailScreen(
         )
     }
 
+    if (uiState.regenerateError != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearRegenerateError() },
+            title = { Text(strings.regenerateSuite) },
+            text = { Text(uiState.regenerateError!!) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearRegenerateError() }) {
+                    Text(strings.continueButton)
+                }
+            }
+        )
+    }
+
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -249,21 +262,6 @@ fun SuiteDetailScreen(
                         }
                     }
 
-                    OutlinedButton(
-                        onClick = {
-                            viewModel.regenerateSuite { newSuiteId ->
-                                onNavigateToSuite(newSuiteId)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 8.dp)
-                        )
-                        Text(strings.regenerateSuite)
-                    }
                 }
 
                 // Progress chart with cycle stats
@@ -402,7 +400,25 @@ fun SuiteDetailScreen(
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(32.dp)) }
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.regenerateSuite(strings.regenerateNoPuzzles) { newSuiteId ->
+                                onNavigateToSuite(newSuiteId)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(strings.regenerateSuite)
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
         }

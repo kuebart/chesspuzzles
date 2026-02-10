@@ -59,6 +59,27 @@ class PuzzleRepository @Inject constructor(
     }
 
 
+    suspend fun findPuzzlesExcluding(
+        themes: List<PuzzleTheme>,
+        ratingMin: Int,
+        ratingMax: Int,
+        limit: Int,
+        excludeIds: List<String>
+    ): List<PuzzleEntity> {
+        return if (themes.isEmpty()) {
+            puzzleDao.getRandomByRatingExcluding(ratingMin, ratingMax, limit, excludeIds)
+        } else {
+            val allResults = mutableListOf<PuzzleEntity>()
+            for (theme in themes) {
+                val results = puzzleDao.getRandomByRatingAndThemeExcluding(
+                    ratingMin, ratingMax, theme.csvKey, limit, excludeIds
+                )
+                allResults.addAll(results)
+            }
+            allResults.distinctBy { it.id }.shuffled().take(limit)
+        }
+    }
+
     suspend fun getAvailableThemes(): Set<PuzzleTheme> {
         val allThemeStrings = puzzleDao.getAllThemeStrings()
         val themes = mutableSetOf<PuzzleTheme>()

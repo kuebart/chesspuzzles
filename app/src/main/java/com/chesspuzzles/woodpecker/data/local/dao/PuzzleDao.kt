@@ -67,6 +67,36 @@ interface PuzzleDao {
     @Query("SELECT COUNT(DISTINCT pa.puzzleId) FROM puzzle_attempts pa WHERE pa.solved = 1")
     fun observeTotalSolvedCount(): Flow<Int>
 
+    @Query("""
+        SELECT * FROM puzzles
+        WHERE rating BETWEEN :minRating AND :maxRating
+        AND (:themes = '' OR themes LIKE '%' || :themes || '%')
+        AND id NOT IN (:excludeIds)
+        ORDER BY RANDOM()
+        LIMIT :limit
+    """)
+    suspend fun getRandomByRatingAndThemeExcluding(
+        minRating: Int,
+        maxRating: Int,
+        themes: String,
+        limit: Int,
+        excludeIds: List<String>
+    ): List<PuzzleEntity>
+
+    @Query("""
+        SELECT * FROM puzzles
+        WHERE rating BETWEEN :minRating AND :maxRating
+        AND id NOT IN (:excludeIds)
+        ORDER BY RANDOM()
+        LIMIT :limit
+    """)
+    suspend fun getRandomByRatingExcluding(
+        minRating: Int,
+        maxRating: Int,
+        limit: Int,
+        excludeIds: List<String>
+    ): List<PuzzleEntity>
+
     @Query("SELECT DISTINCT themes FROM puzzles")
     suspend fun getAllThemeStrings(): List<String>
 }

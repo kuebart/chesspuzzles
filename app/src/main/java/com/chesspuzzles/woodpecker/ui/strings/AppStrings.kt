@@ -62,6 +62,7 @@ data class AppStrings(
     val cycles: String,
     val noCyclesYet: String,
     val regenerateSuite: String,
+    val regenerateNoPuzzles: String,
     val cycle: String, // "Cycle"
     val correct: String, // "korrekt" / "correct"
     val time: String,
@@ -164,6 +165,7 @@ val DeStrings = AppStrings(
     cycles = "Zyklen",
     noCyclesYet = "Noch keine Zyklen.",
     regenerateSuite = "Neue Suite mit gleichen Einstellungen",
+    regenerateNoPuzzles = "Keine neuen Aufgaben mit diesen Einstellungen verfügbar",
     cycle = "Zyklus",
     correct = "korrekt",
     time = "Zeit",
@@ -318,6 +320,7 @@ val EnStrings = AppStrings(
     cycles = "Cycles",
     noCyclesYet = "No cycles yet.",
     regenerateSuite = "New suite with same settings",
+    regenerateNoPuzzles = "No new puzzles available with these settings",
     cycle = "Cycle",
     correct = "correct",
     time = "Time",

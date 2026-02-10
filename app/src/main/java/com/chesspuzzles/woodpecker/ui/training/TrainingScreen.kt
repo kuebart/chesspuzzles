@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,7 +52,7 @@ import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
 import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
 import com.chesspuzzles.woodpecker.ui.theme.WrongRed
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TrainingScreen(
     onBack: () -> Unit,
@@ -332,6 +335,38 @@ fun TrainingScreen(
                     }
                     PuzzleResult.NONE -> {
                         Spacer(modifier = Modifier.height(48.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // Suite info: themes + rating
+                if (uiState.suiteThemes.isNotEmpty() || uiState.suiteRatingMax > 0) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(hp)
+                            .padding(bottom = 12.dp)
+                    ) {
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            uiState.suiteThemes.forEach { theme ->
+                                val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text(themeName, style = MaterialTheme.typography.labelSmall) }
+                                )
+                            }
+                        }
+                        if (uiState.suiteRatingMax > 0) {
+                            Text(
+                                text = "${strings.ratingLabel} ${uiState.suiteRatingMin}–${uiState.suiteRatingMax}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
             }

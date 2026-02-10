@@ -65,12 +65,7 @@ class SuiteRepository @Inject constructor(
     }
 
     suspend fun renameSuite(suiteId: Long, name: String) {
-        val suite = suiteDao.getSuiteById(suiteId) ?: return
-        if (suite.groupId != 0L) {
-            suiteDao.updateGroupName(suite.groupId, name)
-        } else {
-            suiteDao.updateSuiteName(suiteId, name)
-        }
+        suiteDao.updateSuiteName(suiteId, name)
     }
 
     suspend fun ensureGroupId(suiteId: Long): Long {

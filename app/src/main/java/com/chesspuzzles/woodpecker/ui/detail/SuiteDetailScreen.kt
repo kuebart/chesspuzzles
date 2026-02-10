@@ -142,7 +142,7 @@ fun SuiteDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(uiState.suite?.displayName ?: strings.suiteDefault) },
+                title = { Text(uiState.suite?.name ?: strings.suiteDefault) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = strings.back)

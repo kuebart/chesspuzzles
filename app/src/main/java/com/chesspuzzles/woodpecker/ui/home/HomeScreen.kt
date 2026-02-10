@@ -262,7 +262,7 @@ private fun SuiteCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = suite.displayName,
+                text = suite.name,
                 style = MaterialTheme.typography.titleLarge
             )
 

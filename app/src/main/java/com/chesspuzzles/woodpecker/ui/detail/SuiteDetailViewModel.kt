@@ -94,6 +94,7 @@ class SuiteDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _regenerateError.value = null
             val suite = uiState.value.suite ?: return@launch
+            val isFirstRegeneration = suite.groupId == 0L
             val groupId = suiteRepository.ensureGroupId(suiteId)
             val existingIds = puzzleRepository.getPuzzleIdsForGroup(groupId, suiteId)
             val puzzles = puzzleRepository.findPuzzlesExcluding(
@@ -108,8 +109,12 @@ class SuiteDetailViewModel @Inject constructor(
                 return@launch
             }
             val nextVersion = suiteRepository.getNextVersionInGroup(groupId)
+            val baseName = suite.name
+            if (isFirstRegeneration) {
+                suiteRepository.renameSuite(suiteId, "$baseName v1")
+            }
             val newSuiteId = suiteRepository.createSuite(
-                name = suite.name,
+                name = "$baseName v$nextVersion",
                 themes = suite.themes,
                 ratingMin = suite.ratingMin,
                 ratingMax = suite.ratingMax,

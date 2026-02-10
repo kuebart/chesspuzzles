@@ -15,7 +15,4 @@ data class Suite(
     val lastCycleAccuracy: Float? = null,
     val activeCycleProgress: Int? = null,
     val failedPuzzleCount: Int = 0
-) {
-    val displayName: String
-        get() = if (groupId != 0L) "$name v$version" else name
-}
+)

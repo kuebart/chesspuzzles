@@ -9,6 +9,7 @@ import com.chesspuzzles.woodpecker.data.repository.PuzzleRepository
 import com.chesspuzzles.woodpecker.data.repository.SuiteRepository
 import com.chesspuzzles.woodpecker.data.sound.SoundManager
 import com.chesspuzzles.woodpecker.domain.model.Puzzle
+import com.chesspuzzles.woodpecker.domain.model.PuzzleTheme
 import com.chesspuzzles.woodpecker.ui.components.chessboard.BoardState
 import com.chesspuzzles.woodpecker.ui.theme.CorrectGreen
 import com.chesspuzzles.woodpecker.ui.theme.WrongRed
@@ -44,7 +45,10 @@ data class TrainingUiState(
     val moveHistorySize: Int = 0,
     val displayedPuzzleIndex: Int = 0,
     val isReviewingPastPuzzle: Boolean = false,
-    val flashColor: Color? = null
+    val flashColor: Color? = null,
+    val suiteThemes: List<PuzzleTheme> = emptyList(),
+    val suiteRatingMin: Int = 0,
+    val suiteRatingMax: Int = 0
 )
 
 @HiltViewModel
@@ -107,6 +111,7 @@ class TrainingViewModel @Inject constructor(
 
     private fun loadPuzzles() {
         viewModelScope.launch {
+            val suite = suiteRepository.getSuiteById(suiteId)
             var allPuzzles = puzzleRepository.getPuzzlesForSuite(suiteId)
             if (retry) {
                 val failedIds = suiteRepository.getCurrentlyFailedPuzzleIdsForCycle(cycleId).toSet()
@@ -134,7 +139,10 @@ class TrainingViewModel @Inject constructor(
                     timerRunning = true,
                     timerOffsetMs = timerOffset,
                     correctCount = initialCorrect,
-                    wrongCount = initialWrong
+                    wrongCount = initialWrong,
+                    suiteThemes = suite?.themes ?: emptyList(),
+                    suiteRatingMin = suite?.ratingMin ?: 0,
+                    suiteRatingMax = suite?.ratingMax ?: 0
                 )
             }
 

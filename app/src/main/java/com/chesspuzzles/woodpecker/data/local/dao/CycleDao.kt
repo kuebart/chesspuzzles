@@ -59,4 +59,19 @@ interface CycleDao {
     @Query("SELECT COUNT(DISTINCT DATE(attemptedAt / 1000, 'unixepoch')) FROM puzzle_attempts")
     fun observeTrainingDays(): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM cycles WHERE completedAt IS NOT NULL")
+    suspend fun getCompletedCycleCount(): Int
+
+    @Query("SELECT SUM(timeMs) FROM puzzle_attempts")
+    suspend fun getTotalTrainingTime(): Long?
+
+    @Query("SELECT AVG(timeMs) FROM puzzle_attempts")
+    suspend fun getAverageTimePerPuzzle(): Long?
+
+    @Query("SELECT COUNT(*) FROM puzzle_attempts WHERE DATE(attemptedAt / 1000, 'unixepoch') = DATE('now')")
+    suspend fun getPuzzlesSolvedToday(): Int
+
+    @Query("SELECT DISTINCT DATE(attemptedAt / 1000, 'unixepoch') as d FROM puzzle_attempts ORDER BY d DESC")
+    suspend fun getAllTrainingDates(): List<String>
+
 }

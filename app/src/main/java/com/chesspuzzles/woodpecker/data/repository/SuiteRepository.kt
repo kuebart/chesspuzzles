@@ -30,6 +30,11 @@ class SuiteRepository @Inject constructor(
 
     suspend fun getSuiteCount(): Int = suiteDao.getSuiteCount()
 
+    suspend fun getAllSuiteIds(): List<Long> {
+        // Use a simple query via the existing DAO
+        return suiteDao.getAllSuiteIds()
+    }
+
     fun observeSuiteById(suiteId: Long): Flow<Suite?> =
         suiteDao.observeSuiteById(suiteId).map { it?.toDomain() }
 

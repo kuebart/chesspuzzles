@@ -50,6 +50,9 @@ interface SuiteDao {
     @Query("SELECT COUNT(*) FROM suites")
     suspend fun getSuiteCount(): Int
 
+    @Query("SELECT id FROM suites")
+    suspend fun getAllSuiteIds(): List<Long>
+
     @Transaction
     suspend fun createSuiteWithPuzzles(suite: SuiteEntity, puzzleIds: List<String>): Long {
         val suiteId = insertSuite(suite)

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chesspuzzles.woodpecker.ui.components.AppBackground
 import com.chesspuzzles.woodpecker.ui.strings.LocalStrings
+import com.chesspuzzles.woodpecker.util.TimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,11 +63,13 @@ fun StatsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
+                // Row 1: Solved total + Solved today
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -75,11 +80,84 @@ fun StatsScreen(
                         modifier = Modifier.weight(1f)
                     )
                     StatCard(
+                        value = "${uiState.solvedToday}",
+                        label = strings.statsSolvedToday,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Row 2: Total time + Avg per puzzle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        value = TimeFormatter.formatMs(uiState.totalTrainingTimeMs),
+                        label = strings.statsTotalTime,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        value = TimeFormatter.formatMsShort(uiState.avgTimePerPuzzle),
+                        label = strings.statsAvgTimePerPuzzle,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Row 3: Avg accuracy + Best accuracy
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        value = if (uiState.completedCycles > 0)
+                            "${(uiState.averageAccuracy * 100).toInt()}%" else "–",
+                        label = strings.statsAvgAccuracy,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        value = if (uiState.completedCycles > 0)
+                            "${(uiState.bestAccuracy * 100).toInt()}%" else "–",
+                        label = strings.statsBestAccuracy,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Row 4: Cycles + Suites
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        value = "${uiState.completedCycles}",
+                        label = strings.statsCompletedCycles,
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        value = "${uiState.suiteCount}",
+                        label = strings.statsSuites,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Row 5: Training days + Streak
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
                         value = "${uiState.trainingDays}",
                         label = strings.trainingDays,
                         modifier = Modifier.weight(1f)
                     )
+                    StatCard(
+                        value = if (uiState.currentStreak > 0)
+                            "${uiState.currentStreak} ${strings.statsDays}" else "–",
+                        label = strings.statsCurrentStreak,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

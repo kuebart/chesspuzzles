@@ -33,6 +33,8 @@ data class AppStrings(
     val lastAccuracy: String, // "Last:"
     val taskProgress: String, // "Aufgabe" / "Puzzle"
     val statisticsTitle: String,
+    val resetCycle: String,
+    val resetCycleConfirm: String,
     val sortLabel: String,
     val sortByLastAccess: String,
     val sortByName: String,
@@ -128,6 +130,8 @@ val DeStrings = AppStrings(
     puzzlesSolved = "Gelöste Aufgaben",
     trainingDays = "Trainingstage",
     statisticsTitle = "Statistik",
+    resetCycle = "Zyklus abbrechen",
+    resetCycleConfirm = "Aktuellen Zyklus wirklich abbrechen? Der Fortschritt geht verloren.",
     startTraining = "Neuen Zyklus starten",
     startCycle = "Zyklus starten",
     continueCycle = "Zyklus fortsetzen",
@@ -284,6 +288,8 @@ val EnStrings = AppStrings(
     puzzlesSolved = "Puzzles Solved",
     trainingDays = "Training Days",
     statisticsTitle = "Statistics",
+    resetCycle = "Cancel Cycle",
+    resetCycleConfirm = "Really cancel the current cycle? Progress will be lost.",
     startTraining = "Start New Cycle",
     startCycle = "Start Cycle",
     continueCycle = "Continue Cycle",

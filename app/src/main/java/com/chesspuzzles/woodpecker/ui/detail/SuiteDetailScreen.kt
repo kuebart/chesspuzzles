@@ -68,6 +68,7 @@ fun SuiteDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showRenameDialog by remember { mutableStateOf(false) }
+    var showResetCycleDialog by remember { mutableStateOf(false) }
     var renameText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val strings = LocalStrings.current
@@ -138,6 +139,27 @@ fun SuiteDetailScreen(
         )
     }
 
+    if (showResetCycleDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetCycleDialog = false },
+            title = { Text(strings.resetCycle) },
+            text = { Text(strings.resetCycleConfirm) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showResetCycleDialog = false
+                    viewModel.resetActiveCycle()
+                }) {
+                    Text(strings.resetCycle, color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetCycleDialog = false }) {
+                    Text(strings.cancel)
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -185,7 +207,7 @@ fun SuiteDetailScreen(
                     .padding(padding)
             ) {
             val completedCycles = uiState.cycles
-                .filter { it.stats != null }
+                .filter { it.cycle.completedAt != null && it.stats != null }
                 .map { Pair(it.cycle, it.stats!!) }
             val hasActiveCycle = uiState.cycles.any { it.cycle.completedAt == null }
             val suiteAccentColor = SuiteColors[(suite.id % SuiteColors.size).toInt()]
@@ -319,6 +341,18 @@ fun SuiteDetailScreen(
                             }
                         } else {
                             Text(strings.startTraining)
+                        }
+                    }
+
+                    if (hasActiveCycle) {
+                        TextButton(
+                            onClick = { showResetCycleDialog = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                strings.resetCycle,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }

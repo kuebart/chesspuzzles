@@ -64,6 +64,12 @@ class SuiteRepository @Inject constructor(
         suiteDao.deleteSuite(suiteId)
     }
 
+    suspend fun resetActiveCycle(suiteId: Long) {
+        val activeCycle = cycleDao.getActiveCycle(suiteId) ?: return
+        cycleDao.deleteAttemptsForCycle(activeCycle.id)
+        cycleDao.deleteCycle(activeCycle.id)
+    }
+
     suspend fun renameSuite(suiteId: Long, name: String) {
         suiteDao.updateSuiteName(suiteId, name)
     }
@@ -186,7 +192,7 @@ class SuiteRepository @Inject constructor(
     }
 
     suspend fun getCycleStatsForAllCycles(suiteId: Long): List<Pair<Cycle, CycleStats>> {
-        val cycles = cycleDao.getCyclesForSuite(suiteId)
+        val cycles = cycleDao.getCyclesForSuite(suiteId).filter { it.completedAt != null }
         return cycles.mapNotNull { cycle ->
             val stats = getCycleStats(cycle.id)
             if (stats != null) Pair(cycle.toDomain(), stats) else null

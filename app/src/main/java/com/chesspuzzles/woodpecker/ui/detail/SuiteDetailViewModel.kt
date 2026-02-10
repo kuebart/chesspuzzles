@@ -126,6 +126,12 @@ class SuiteDetailViewModel @Inject constructor(
         }
     }
 
+    fun resetActiveCycle() {
+        viewModelScope.launch {
+            suiteRepository.resetActiveCycle(suiteId)
+        }
+    }
+
     fun clearRegenerateError() {
         _regenerateError.value = null
     }

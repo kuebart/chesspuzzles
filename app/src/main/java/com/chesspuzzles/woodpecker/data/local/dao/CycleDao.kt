@@ -50,6 +50,12 @@ interface CycleDao {
     @Query("SELECT SUM(timeMs) FROM puzzle_attempts WHERE cycleId = :cycleId")
     suspend fun getTotalTimeForCycle(cycleId: Long): Long?
 
+    @Query("DELETE FROM puzzle_attempts WHERE cycleId = :cycleId")
+    suspend fun deleteAttemptsForCycle(cycleId: Long)
+
+    @Query("DELETE FROM cycles WHERE id = :cycleId")
+    suspend fun deleteCycle(cycleId: Long)
+
     @Query("SELECT COUNT(DISTINCT DATE(attemptedAt / 1000, 'unixepoch')) FROM puzzle_attempts")
     fun observeTrainingDays(): Flow<Int>
 

@@ -17,5 +17,5 @@ data class Suite(
     val failedPuzzleCount: Int = 0
 ) {
     val displayName: String
-        get() = if (version > 1) "$name v$version" else name
+        get() = "$name v$version"
 }

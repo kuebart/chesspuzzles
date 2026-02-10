@@ -68,7 +68,7 @@ interface CycleDao {
     @Query("SELECT AVG(timeMs) FROM puzzle_attempts")
     suspend fun getAverageTimePerPuzzle(): Long?
 
-    @Query("SELECT COUNT(*) FROM puzzle_attempts WHERE DATE(attemptedAt / 1000, 'unixepoch') = DATE('now')")
+    @Query("SELECT COUNT(DISTINCT puzzleId) FROM puzzle_attempts WHERE solved = 1 AND DATE(attemptedAt / 1000, 'unixepoch') = DATE('now')")
     suspend fun getPuzzlesSolvedToday(): Int
 
     @Query("SELECT DISTINCT DATE(attemptedAt / 1000, 'unixepoch') as d FROM puzzle_attempts ORDER BY d DESC")

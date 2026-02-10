@@ -32,6 +32,7 @@ data class AppStrings(
     val cyclesCompleted: String, // "cycles completed"
     val lastAccuracy: String, // "Last:"
     val taskProgress: String, // "Aufgabe" / "Puzzle"
+    val statisticsTitle: String,
     val sortLabel: String,
     val sortByLastAccess: String,
     val sortByName: String,
@@ -126,6 +127,7 @@ val DeStrings = AppStrings(
     noSuitesSubtitle = "Erstelle deine erste Puzzle-Suite um mit dem Training zu beginnen",
     puzzlesSolved = "Gelöste Aufgaben",
     trainingDays = "Trainingstage",
+    statisticsTitle = "Statistik",
     startTraining = "Neuen Zyklus starten",
     startCycle = "Zyklus starten",
     continueCycle = "Zyklus fortsetzen",
@@ -281,6 +283,7 @@ val EnStrings = AppStrings(
     noSuitesSubtitle = "Create your first puzzle suite to start training",
     puzzlesSolved = "Puzzles Solved",
     trainingDays = "Training Days",
+    statisticsTitle = "Statistics",
     startTraining = "Start New Cycle",
     startCycle = "Start Cycle",
     continueCycle = "Continue Cycle",

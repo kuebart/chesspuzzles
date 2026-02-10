@@ -12,6 +12,7 @@ import com.chesspuzzles.woodpecker.ui.create.CreateSuiteScreen
 import com.chesspuzzles.woodpecker.ui.detail.SuiteDetailScreen
 import com.chesspuzzles.woodpecker.ui.home.HomeScreen
 import com.chesspuzzles.woodpecker.ui.settings.SettingsScreen
+import com.chesspuzzles.woodpecker.ui.stats.StatsScreen
 import com.chesspuzzles.woodpecker.ui.summary.CycleSummaryScreen
 import com.chesspuzzles.woodpecker.ui.training.TrainingScreen
 
@@ -19,6 +20,7 @@ object Routes {
     const val HOME = "home"
     const val CREATE_SUITE = "create"
     const val SETTINGS = "settings"
+    const val STATS = "stats"
 
     const val SUITE_DETAIL = "suite/{suiteId}"
     const val TRAINING = "training/{suiteId}/{cycleId}?retry={retry}"
@@ -50,6 +52,7 @@ fun NavGraph(
                     navController.navigate(Routes.training(suiteId, cycleId, retry = true))
                 },
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                onOpenStats = { navController.navigate(Routes.STATS) },
                 appPreferences = appPreferences
             )
         }
@@ -62,6 +65,12 @@ fun NavGraph(
                     navController.navigate(Routes.suiteDetail(suiteId))
                 },
 
+            )
+        }
+
+        composable(Routes.STATS) {
+            StatsScreen(
+                onBack = { navController.popBackStack() }
             )
         }
 

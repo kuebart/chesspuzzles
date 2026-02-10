@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
@@ -35,7 +36,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -52,7 +52,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,6 +70,7 @@ fun HomeScreen(
     onStartTraining: (suiteId: Long, cycleId: Long) -> Unit,
     onStartRetry: (suiteId: Long, cycleId: Long) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenStats: () -> Unit,
     appPreferences: AppPreferences,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -129,6 +129,13 @@ fun HomeScreen(
                     )
                 },
                 actions = {
+                    IconButton(onClick = onOpenStats) {
+                        Icon(
+                            Icons.Outlined.BarChart,
+                            contentDescription = strings.statisticsTitle,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     IconButton(onClick = onOpenSettings) {
                         Icon(
                             Icons.Default.Settings,
@@ -173,10 +180,6 @@ fun HomeScreen(
             ) {
                 item {
                     Spacer(modifier = Modifier.height(8.dp))
-                    StatsRow(
-                        totalSolved = uiState.totalSolved,
-                        trainingDays = uiState.trainingDays
-                    )
                 }
 
                 if (uiState.suites.isEmpty()) {
@@ -226,52 +229,6 @@ fun HomeScreen(
                 item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
-        }
-    }
-}
-
-@Composable
-private fun StatsRow(totalSolved: Int, trainingDays: Int) {
-    val strings = LocalStrings.current
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        StatCard(
-            value = "$totalSolved",
-            label = strings.puzzlesSolved,
-            modifier = Modifier.weight(1f)
-        )
-        StatCard(
-            value = "$trainingDays",
-            label = strings.trainingDays,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }

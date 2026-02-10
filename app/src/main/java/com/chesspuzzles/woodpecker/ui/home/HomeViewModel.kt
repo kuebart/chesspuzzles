@@ -3,36 +3,27 @@ package com.chesspuzzles.woodpecker.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chesspuzzles.woodpecker.data.preferences.AppPreferences
-import com.chesspuzzles.woodpecker.data.repository.PuzzleRepository
 import com.chesspuzzles.woodpecker.data.repository.SuiteRepository
 import com.chesspuzzles.woodpecker.domain.model.Suite
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeUiState(
     val suites: List<Suite> = emptyList(),
-    val totalSolved: Int = 0,
-    val trainingDays: Int = 0,
     val isLoading: Boolean = true
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val suiteRepository: SuiteRepository,
-    private val puzzleRepository: PuzzleRepository,
     private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    val uiState: StateFlow<HomeUiState> = combine(
-        suiteRepository.observeAllSuites(),
-        puzzleRepository.observeTotalSolvedCount(),
-        suiteRepository.observeTrainingDays()
-    ) { suites, totalSolved, trainingDays ->
+    val uiState: StateFlow<HomeUiState> = suiteRepository.observeAllSuites().map { suites ->
         // Enrich suites with cycle info
         val enrichedSuites = suites.map { suite ->
             val cycles = suiteRepository.getCyclesForSuite(suite.id)
@@ -73,8 +64,6 @@ class HomeViewModel @Inject constructor(
 
         HomeUiState(
             suites = sortedSuites,
-            totalSolved = totalSolved,
-            trainingDays = trainingDays,
             isLoading = false
         )
     }.stateIn(

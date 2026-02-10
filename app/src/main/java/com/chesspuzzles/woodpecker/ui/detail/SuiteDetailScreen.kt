@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -201,12 +200,69 @@ fun SuiteDetailScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                 }
 
-                // 1. Chart + stats at top
+                // 1. Chart + stat cards at top (like summary screen)
                 if (completedCycles.isNotEmpty()) {
                     item {
                         var selectedIndex by remember { mutableIntStateOf(completedCycles.size - 1) }
                         val selectedCycle = completedCycles[selectedIndex]
                         val selectedStats = selectedCycle.second
+
+                        // Compute deltas from previous cycle
+                        val prevStats = if (selectedIndex > 0) completedCycles[selectedIndex - 1].second else null
+                        val timeDelta = prevStats?.let { selectedStats.totalTimeMs - it.totalTimeMs }
+                        val accuracyDelta = prevStats?.let { selectedStats.accuracy - it.accuracy }
+
+                        Text(
+                            text = "${strings.cycle} ${selectedCycle.first.cycleNumber}",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Stat cards row 1: Time + Accuracy
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            StatCard(
+                                title = strings.totalTime,
+                                value = TimeFormatter.formatMs(selectedStats.totalTimeMs),
+                                delta = timeDelta?.let { TimeFormatter.formatDelta(it) },
+                                deltaPositive = timeDelta?.let { it < 0 },
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                title = strings.accuracy,
+                                value = "${(selectedStats.accuracy * 100).toInt()}%",
+                                delta = accuracyDelta?.let {
+                                    "${if (it >= 0) "+" else ""}${(it * 100).toInt()}%"
+                                },
+                                deltaPositive = accuracyDelta?.let { it >= 0 },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Stat cards row 2: Solved + Avg Time
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            StatCard(
+                                title = strings.solved,
+                                value = "${selectedStats.solvedCount} / ${selectedStats.totalPuzzles}",
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                title = strings.avgTime,
+                                value = TimeFormatter.formatMsShort(selectedStats.averageTimeMs),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         CycleLineChart(
                             cycleStats = completedCycles,
@@ -219,103 +275,6 @@ fun SuiteDetailScreen(
                                 .fillMaxWidth()
                                 .height(170.dp)
                         )
-
-                        // Compute deltas from previous cycle in list
-                        val prevStats = if (selectedIndex > 0) completedCycles[selectedIndex - 1].second else null
-                        val timeDelta = prevStats?.let { selectedStats.totalTimeMs - it.totalTimeMs }
-                        val accuracyDelta = prevStats?.let { selectedStats.accuracy - it.accuracy }
-                        val errorsDelta = prevStats?.let {
-                            (selectedStats.totalPuzzles - selectedStats.solvedCount) - (it.totalPuzzles - it.solvedCount)
-                        }
-
-                        // Selected cycle stats
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp),
-                            shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        text = "${strings.cycle} ${selectedCycle.first.cycleNumber}",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        text = TimeFormatter.formatMs(selectedStats.totalTimeMs),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = strings.time,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = timeDelta?.let { TimeFormatter.formatDelta(it) } ?: "",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (timeDelta != null && timeDelta < 0) CorrectGreen
-                                               else if (timeDelta != null && timeDelta > 0) WrongRed
-                                               else MaterialTheme.colorScheme.surfaceContainerHigh,
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        text = "${(selectedStats.accuracy * 100).toInt()}%",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = strings.accuracy,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = accuracyDelta?.let {
-                                            "${if (it >= 0) "+" else ""}${(it * 100).toInt()}%"
-                                        } ?: "",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (accuracyDelta != null && accuracyDelta > 0) CorrectGreen
-                                               else if (accuracyDelta != null && accuracyDelta < 0) WrongRed
-                                               else MaterialTheme.colorScheme.surfaceContainerHigh,
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(
-                                        text = "${selectedStats.totalPuzzles - selectedStats.solvedCount}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = strings.chartLegendErrors,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Text(
-                                        text = errorsDelta?.let {
-                                            "${if (it >= 0) "+" else ""}$it"
-                                        } ?: "",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = if (errorsDelta != null && errorsDelta < 0) CorrectGreen
-                                               else if (errorsDelta != null && errorsDelta > 0) WrongRed
-                                               else MaterialTheme.colorScheme.surfaceContainerHigh,
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                            }
-                        }
                     }
                 } else {
                     item {
@@ -429,4 +388,57 @@ fun SuiteDetailScreen(
     }
 }
 
-
+@Composable
+private fun StatCard(
+    title: String,
+    value: String,
+    delta: String? = null,
+    deltaPositive: Boolean? = null,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            if (delta != null) {
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    color = when (deltaPositive) {
+                        true -> CorrectGreen.copy(alpha = 0.15f)
+                        false -> WrongRed.copy(alpha = 0.15f)
+                        null -> androidx.compose.ui.graphics.Color.Transparent
+                    },
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Text(
+                        text = delta,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = when (deltaPositive) {
+                            true -> CorrectGreen
+                            false -> WrongRed
+                            null -> MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                    )
+                }
+            }
+        }
+    }
+}

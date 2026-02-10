@@ -179,6 +179,13 @@ fun TrainingScreen(
                             style = MaterialTheme.typography.bodyMedium,
                             color = WrongRed
                         )
+                        if (uiState.suiteRatingMax > 0) {
+                            Text(
+                                text = " (${uiState.suiteRatingMin}–${uiState.suiteRatingMax})",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
@@ -340,31 +347,20 @@ fun TrainingScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Suite info: themes + rating
-                if (uiState.suiteThemes.isNotEmpty() || uiState.suiteRatingMax > 0) {
-                    Column(
+                // Suite info: themes
+                if (uiState.suiteThemes.isNotEmpty()) {
+                    FlowRow(
                         modifier = Modifier
                             .fillMaxWidth()
                             .then(hp)
-                            .padding(bottom = 12.dp)
+                            .padding(bottom = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            uiState.suiteThemes.forEach { theme ->
-                                val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
-                                AssistChip(
-                                    onClick = {},
-                                    label = { Text(themeName, style = MaterialTheme.typography.labelSmall) }
-                                )
-                            }
-                        }
-                        if (uiState.suiteRatingMax > 0) {
-                            Text(
-                                text = "${strings.ratingLabel} ${uiState.suiteRatingMin}–${uiState.suiteRatingMax}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 4.dp)
+                        uiState.suiteThemes.forEach { theme ->
+                            val themeName = strings.themeDisplayNames[theme] ?: theme.displayName
+                            AssistChip(
+                                onClick = {},
+                                label = { Text(themeName, style = MaterialTheme.typography.labelSmall) }
                             )
                         }
                     }
